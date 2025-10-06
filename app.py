@@ -38,8 +38,6 @@ if df is not None:
         st.subheader("Raw Data Preview")
         st.dataframe(df.head(10), use_container_width=True)
 
-        st.markdown("---")
-
         # 2. Dataset Information
         st.header("2. Dataset Information")
         col1, col2 = st.columns(2)
