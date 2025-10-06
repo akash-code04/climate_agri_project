@@ -12,23 +12,13 @@ st.set_page_config(page_title="Data Explorer", page_icon="📊", layout="wide")
 st.title("📊 Data Exploration & Visualization Dashboard")
 st.markdown("---")
 
-# File uploader or load from data folder
-st.sidebar.header("Data Source")
-data_source = st.sidebar.radio("Choose data source:", ["Upload File", "Use Existing Dataset"])
-
-df = None
-
-if data_source == "Upload File":
-    uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=['csv'])
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-else:
-    # Load from data folder
-    try:
-        df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")  # Replace with your actual filename
-        st.sidebar.success("Dataset loaded successfully!")
-    except FileNotFoundError:
-        st.sidebar.error("Dataset not found in data folder. Please check the filename.")
+# Load dataset from data folder
+try:
+    df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")  # Replace 'your_dataset.csv' with your actual filename
+    st.success("✅ Dataset loaded successfully!")
+except FileNotFoundError:
+    st.error("❌ Dataset not found! Please ensure your CSV file is in the 'data' folder.")
+    st.stop()  # Stop execution if file not found
 
 # Main EDA Section
 if df is not None:
@@ -181,13 +171,3 @@ if df is not None:
         file_name='processed_data.csv',
         mime='text/csv',
     )
-
-else:
-    st.info("👈 Please upload a CSV file or ensure your dataset is in the data folder to begin exploration.")
-    st.markdown("""
-    ### How to use this app:
-    1. Upload a CSV file using the sidebar, OR
-    2. Place your CSV file in the `data` folder and update the filename in the code
-    3. Explore various visualizations and statistics
-    4. Download the processed data if needed
-    """)
