@@ -15,6 +15,7 @@ st.title("🌾 Climate Change Effects on Agriculture")
 # -----------------------------
 try:
     df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
+    print(df.columns.tolist())
 except FileNotFoundError:
     st.error("❌ Dataset not found! Please place it in the 'data/' folder.")
     st.stop()
@@ -163,7 +164,7 @@ with tab3:
             ax.grid(True, linestyle='--', alpha=0.7)
             st.pyplot(fig)
 
-    two_col_plot([yield_crop_plot, region_yield_plot])
+    two_col_plot([Crop_Yield_MT_per_HA, region_yield_plot])
 
     # 3️⃣ Climate–Agriculture Relationship
     st.subheader("3️⃣ Climate–Agriculture Relationship")
@@ -259,4 +260,3 @@ with tab3:
     - Two-column layout helps you visually compare related metrics.
     - Regression lines reveal correlations between climate and yield.
     """)
-
