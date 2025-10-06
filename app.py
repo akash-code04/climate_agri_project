@@ -8,7 +8,6 @@ st.set_page_config(page_title="ClimateAgriProject", page_icon="📊", layout="wi
 
 # Title
 st.title("Climate Change Effects On Agriculture")
-st.markdown("---")
 
 # Load dataset from data folder
 try:
@@ -17,6 +16,8 @@ try:
 except FileNotFoundError:
     st.error("❌ Dataset not found! Please ensure your CSV file is in the 'data' folder.")
     st.stop()
+
+st.markdown("---")
 
 
 if df is not None:
