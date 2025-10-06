@@ -15,7 +15,7 @@ st.title("🌾 Climate Change Effects on Agriculture")
 # -----------------------------
 try:
     df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
-    print(df.columns.tolist())
+    st.success("✅ Dataset loaded successfully!")
 except FileNotFoundError:
     st.error("❌ Dataset not found! Please place it in the 'data/' folder.")
     st.stop()
@@ -67,6 +67,7 @@ with tab1:
             ax.set_title('Missing Values by Column')
             ax.grid(True, linestyle='--', alpha=0.6)
             st.pyplot(fig)
+            plt.close(fig)
         else:
             st.success("✅ No missing values found!")
 
@@ -89,7 +90,7 @@ with tab1:
 # -------------------------------------------------------------------
 with tab2:
     st.header("📈 Automatic Yearly Trends for All Numerical Columns")
-    st.markdown("Below are line plots showing how each numerical factor (e.g., temperature, precipitation, fertilizers, yield, etc.) varies over the years.")
+    st.markdown("Below are line plots showing how each numerical factor varies over the years.")
 
     if 'Year' not in df.columns:
         st.error("⚠️ 'Year' column not found in dataset!")
@@ -99,14 +100,15 @@ with tab2:
         # Create plots in two columns
         cols = st.columns(2)
         for idx, col in enumerate(numeric_cols):
-            with cols[idx % 2]:  # alternate between left and right columns
+            with cols[idx % 2]:
                 fig, ax = plt.subplots(figsize=(7, 4))
                 sns.lineplot(x='Year', y=col, data=df, marker='o', ax=ax, linewidth=2)
                 ax.set_title(f"{col} Over Years", fontsize=12)
                 ax.set_xlabel("Year")
                 ax.set_ylabel(col)
-                ax.grid(True, linestyle='--', alpha=0.7)  # add gridlines
+                ax.grid(True, linestyle='--', alpha=0.7)
                 st.pyplot(fig)
+                plt.close(fig)
 
 # -------------------------------------------------------------------
 # TAB 3: EDA INSIGHTS (in two-column layout)
@@ -131,16 +133,21 @@ with tab3:
         fig, ax = plt.subplots(figsize=(7, 4))
         sns.lineplot(x='Year', y='Average_Temperature_C', data=df, marker='o', linewidth=2, ax=ax)
         ax.set_title("Average Temperature Over Years")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Temperature (°C)")
         ax.grid(True, linestyle='--', alpha=0.7)
         st.pyplot(fig)
+        plt.close(fig)
 
     def climate_precip_plot():
-        if 'Precipitation_mm' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.lineplot(x='Year', y='Precipitation_mm', data=df, marker='o', linewidth=2, ax=ax, color='teal')
-            ax.set_title("Precipitation Over Years")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.lineplot(x='Year', y='Total_Precipitation_mm', data=df, marker='o', linewidth=2, ax=ax, color='teal')
+        ax.set_title("Total Precipitation Over Years")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Precipitation (mm)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
     two_col_plot([climate_temp_plot, climate_precip_plot])
 
@@ -149,114 +156,218 @@ with tab3:
     st.markdown("- How has crop yield changed across different crop types over time?")
 
     def yield_crop_plot():
-        if 'Crop' in df.columns and 'Yield_tonnes_per_hectare' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.lineplot(x='Year', y='Yield_tonnes_per_hectare', hue='Crop', data=df, ax=ax, linewidth=2)
-            ax.set_title("Yield Over Time by Crop")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.lineplot(x='Year', y='Crop_Yield_MT_per_HA', hue='Crop_Type', data=df, ax=ax, linewidth=2)
+        ax.set_title("Crop Yield Over Time by Crop Type")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.legend(title='Crop Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+        st.pyplot(fig)
+        plt.close(fig)
 
     def region_yield_plot():
-        if 'Region' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.lineplot(x='Year', y='Yield_tonnes_per_hectare', hue='Region', data=df, ax=ax, linewidth=2)
-            ax.set_title("Yield Over Time by Region")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.lineplot(x='Year', y='Crop_Yield_MT_per_HA', hue='Region', data=df, ax=ax, linewidth=2)
+        ax.set_title("Crop Yield Over Time by Region")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.legend(title='Region', bbox_to_anchor=(1.05, 1), loc='upper left')
+        st.pyplot(fig)
+        plt.close(fig)
 
-    two_col_plot([Crop_Yield_MT_per_HA, region_yield_plot])
+    two_col_plot([yield_crop_plot, region_yield_plot])
 
     # 3️⃣ Climate–Agriculture Relationship
     st.subheader("3️⃣ Climate–Agriculture Relationship")
+    st.markdown("- How do temperature and precipitation correlate with crop yield?")
 
     def temp_yield_corr():
-        if 'Average_Temperature_C' in df.columns and 'Yield_tonnes_per_hectare' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.regplot(x='Average_Temperature_C', y='Yield_tonnes_per_hectare', data=df, scatter_kws={'alpha':0.6})
-            ax.set_title("Temperature vs Yield")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Average_Temperature_C', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, ax=ax)
+        ax.set_title("Temperature vs Crop Yield")
+        ax.set_xlabel("Average Temperature (°C)")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
     def precip_yield_corr():
-        if 'Precipitation_mm' in df.columns and 'Yield_tonnes_per_hectare' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.regplot(x='Precipitation_mm', y='Yield_tonnes_per_hectare', data=df, scatter_kws={'alpha':0.6}, color='seagreen')
-            ax.set_title("Precipitation vs Yield")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Total_Precipitation_mm', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, color='seagreen', ax=ax)
+        ax.set_title("Precipitation vs Crop Yield")
+        ax.set_xlabel("Total Precipitation (mm)")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
     two_col_plot([temp_yield_corr, precip_yield_corr])
 
-    # 4️⃣ Inputs & Sustainability
-    st.subheader("4️⃣ Inputs & Sustainability")
+    # 4️⃣ CO2 Emissions & Extreme Weather
+    st.subheader("4️⃣ CO2 Emissions & Extreme Weather Impact")
+    st.markdown("- How do CO2 emissions and extreme weather events affect crop yield?")
+
+    def co2_yield():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='CO2_Emissions_MT', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, color='darkred', ax=ax)
+        ax.set_title("CO2 Emissions vs Crop Yield")
+        ax.set_xlabel("CO2 Emissions (MT)")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    def weather_yield():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Extreme_Weather_Events', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, color='orange', ax=ax)
+        ax.set_title("Extreme Weather Events vs Crop Yield")
+        ax.set_xlabel("Extreme Weather Events")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    two_col_plot([co2_yield, weather_yield])
+
+    # 5️⃣ Inputs & Sustainability
+    st.subheader("5️⃣ Agricultural Inputs & Sustainability")
+    st.markdown("- How do fertilizer, pesticide use, and irrigation affect crop yield?")
 
     def fertilizer_yield():
-        if 'Fertilizer_Use_kg_per_ha' in df.columns and 'Yield_tonnes_per_hectare' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.regplot(x='Fertilizer_Use_kg_per_ha', y='Yield_tonnes_per_hectare', data=df, scatter_kws={'alpha':0.6})
-            ax.set_title("Fertilizer Use vs Yield")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Fertilizer_Use_KG_per_HA', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, ax=ax)
+        ax.set_title("Fertilizer Use vs Crop Yield")
+        ax.set_xlabel("Fertilizer Use (KG/HA)")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    def pesticide_yield():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Pesticide_Use_KG_per_HA', y='Crop_Yield_MT_per_HA', data=df, scatter_kws={'alpha':0.6}, color='purple', ax=ax)
+        ax.set_title("Pesticide Use vs Crop Yield")
+        ax.set_xlabel("Pesticide Use (KG/HA)")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    two_col_plot([fertilizer_yield, pesticide_yield])
 
     def irrigation_trend():
-        if 'Irrigation_Access_Percent' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.lineplot(x='Year', y='Irrigation_Access_Percent', data=df, marker='o', linewidth=2, ax=ax, color='dodgerblue')
-            ax.set_title("Irrigation Access Over Time")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.lineplot(x='Year', y='Irrigation_Access_%', data=df, marker='o', linewidth=2, ax=ax, color='dodgerblue')
+        ax.set_title("Irrigation Access Over Time")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Irrigation Access (%)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
-    two_col_plot([fertilizer_yield, irrigation_trend])
+    def soil_health_trend():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.lineplot(x='Year', y='Soil_Health_Index', data=df, marker='o', linewidth=2, ax=ax, color='brown')
+        ax.set_title("Soil Health Index Over Time")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Soil Health Index")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
-    # 5️⃣ Adaptation & Resilience
-    st.subheader("5️⃣ Adaptation & Resilience")
+    two_col_plot([irrigation_trend, soil_health_trend])
+
+    # 6️⃣ Adaptation & Resilience
+    st.subheader("6️⃣ Adaptation Strategies & Resilience")
+    st.markdown("- How do different adaptation strategies affect crop yield and economic impact?")
 
     def adaptation_yield():
-        if 'Adaptation_Strategy' in df.columns and 'Yield_tonnes_per_hectare' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.boxplot(x='Adaptation_Strategy', y='Yield_tonnes_per_hectare', data=df)
-            ax.set_title("Yield by Adaptation Strategy")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            plt.xticks(rotation=30)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.boxplot(x='Adaptation_Strategies', y='Crop_Yield_MT_per_HA', data=df, ax=ax, palette='Set2')
+        ax.set_title("Crop Yield by Adaptation Strategy")
+        ax.set_xlabel("Adaptation Strategy")
+        ax.set_ylabel("Crop Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.xticks(rotation=45, ha='right')
+        st.pyplot(fig)
+        plt.close(fig)
 
     def adaptation_economics():
-        if 'Adaptation_Strategy' in df.columns and 'Economic_Impact_USD' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.boxplot(x='Adaptation_Strategy', y='Economic_Impact_USD', data=df, palette='Set2')
-            ax.set_title("Economic Impact by Adaptation Strategy")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            plt.xticks(rotation=30)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.boxplot(x='Adaptation_Strategies', y='Economic_Impact_Million_USD', data=df, palette='viridis', ax=ax)
+        ax.set_title("Economic Impact by Adaptation Strategy")
+        ax.set_xlabel("Adaptation Strategy")
+        ax.set_ylabel("Economic Impact (Million USD)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.xticks(rotation=45, ha='right')
+        st.pyplot(fig)
+        plt.close(fig)
 
     two_col_plot([adaptation_yield, adaptation_economics])
 
-    # 6️⃣ Economic Impact
-    st.subheader("6️⃣ Economic Impact")
+    # 7️⃣ Economic Impact Analysis
+    st.subheader("7️⃣ Economic Impact Analysis")
+    st.markdown("- How do extreme weather events and crop types affect economic impact?")
 
     def econ_vs_weather():
-        if 'Economic_Impact_USD' in df.columns and 'Extreme_Weather_Events' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.regplot(x='Extreme_Weather_Events', y='Economic_Impact_USD', data=df, scatter_kws={'alpha':0.6})
-            ax.set_title("Economic Impact vs Extreme Weather Events")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.regplot(x='Extreme_Weather_Events', y='Economic_Impact_Million_USD', data=df, scatter_kws={'alpha':0.6}, color='crimson', ax=ax)
+        ax.set_title("Economic Impact vs Extreme Weather Events")
+        ax.set_xlabel("Extreme Weather Events")
+        ax.set_ylabel("Economic Impact (Million USD)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
 
     def econ_by_crop():
-        if 'Crop' in df.columns and 'Economic_Impact_USD' in df.columns:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            sns.boxplot(x='Crop', y='Economic_Impact_USD', data=df, palette='pastel')
-            ax.set_title("Economic Impact by Crop Type")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            plt.xticks(rotation=30)
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(7, 4))
+        sns.boxplot(x='Crop_Type', y='Economic_Impact_Million_USD', data=df, palette='pastel', ax=ax)
+        ax.set_title("Economic Impact by Crop Type")
+        ax.set_xlabel("Crop Type")
+        ax.set_ylabel("Economic Impact (Million USD)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.xticks(rotation=45, ha='right')
+        st.pyplot(fig)
+        plt.close(fig)
 
     two_col_plot([econ_vs_weather, econ_by_crop])
+
+    # 8️⃣ Regional & Country Analysis
+    st.subheader("8️⃣ Regional & Country Analysis")
+    st.markdown("- How do crop yields vary across regions and countries?")
+
+    def yield_by_region():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        region_avg = df.groupby('Region')['Crop_Yield_MT_per_HA'].mean().sort_values(ascending=False)
+        region_avg.plot(kind='bar', ax=ax, color='skyblue')
+        ax.set_title("Average Crop Yield by Region")
+        ax.set_xlabel("Region")
+        ax.set_ylabel("Average Yield (MT/HA)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.xticks(rotation=45, ha='right')
+        st.pyplot(fig)
+        plt.close(fig)
+
+    def top_countries():
+        fig, ax = plt.subplots(figsize=(7, 4))
+        country_avg = df.groupby('Country')['Crop_Yield_MT_per_HA'].mean().sort_values(ascending=False).head(10)
+        country_avg.plot(kind='barh', ax=ax, color='lightgreen')
+        ax.set_title("Top 10 Countries by Average Crop Yield")
+        ax.set_xlabel("Average Yield (MT/HA)")
+        ax.set_ylabel("Country")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    two_col_plot([yield_by_region, top_countries])
 
     st.markdown("---")
     st.info("""
     💡 **Interpretation Tips**
     - Gridlines make pattern recognition easier.
     - Two-column layout helps you visually compare related metrics.
-    - Regression lines reveal correlations between climate and yield.
+    - Regression lines reveal correlations between climate factors and crop yield.
+    - Box plots show distribution and outliers across categories.
     """)
