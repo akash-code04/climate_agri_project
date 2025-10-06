@@ -24,7 +24,7 @@ except FileNotFoundError:
 if df is not None:
     
     # Display dataset info
-    st.header("1️⃣ Dataset Overview")
+    st.header("1. Dataset Overview")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
