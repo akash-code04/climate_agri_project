@@ -10,21 +10,22 @@ st.set_page_config(page_title="ClimateAgriProject", page_icon="📊", layout="wi
 st.title("Climate Change Effects On Agriculture")
 st.markdown("---")
 
+# Load dataset from data folder
+try:
+    df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
+    st.success("✅ Dataset loaded successfully!")
+except FileNotFoundError:
+    st.error("❌ Dataset not found! Please ensure your CSV file is in the 'data' folder.")
+    st.stop()
+
+
 if df is not None:
     # Create two tabs
     tab1, tab2 = st.tabs(["Data Overview", "Data Visualization"])
 
     with tab1:
         # Parts 1, 2, 3 and 5 go here
-
-        # Load dataset from data folder
-        try:
-            df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
-            st.success("✅ Dataset loaded successfully!")
-        except FileNotFoundError:
-            st.error("❌ Dataset not found! Please ensure your CSV file is in the 'data' folder.")
-            st.stop()
-
+        
         # 1. Dataset Overview
         st.header("1. Dataset Overview")
         col1, col2, col3, col4 = st.columns(4)
