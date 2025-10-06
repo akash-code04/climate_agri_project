@@ -6,17 +6,22 @@ import matplotlib.pyplot as plt
 # Page configuration
 st.set_page_config(page_title="ClimateAgriProject", page_icon="📊", layout="wide")
 
-# Title
-st.title("Climate Change Effects On Agriculture")
-st.markdown("---")
+# Create two columns: left for title, right for message
+col1, col2 = st.columns([3, 1])  # adjust width ratio if needed
 
-# Load dataset from data folder
-try:
-    df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
-    st.success("Dataset Loaded Successfully!")
-except FileNotFoundError:
-    st.error("Dataset Not Found!")
-    st.stop()
+with col1:
+    st.title("Climate Change Effects On Agriculture")
+
+with col2:
+    # Load dataset and show success/error inline
+    try:
+        df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
+        st.success("✅ Loaded!")
+    except FileNotFoundError:
+        st.error("❌ Not Found!")
+        st.stop()
+
+st.markdown("---")
 
 if df is not None:
     # Create two tabs
