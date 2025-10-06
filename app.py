@@ -24,7 +24,7 @@ except FileNotFoundError:
 if df is not None:
     
     # Display dataset info
-    st.header("1. Dataset Overview OKAY")
+    st.header("1. Dataset Overview")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -42,7 +42,7 @@ if df is not None:
     
     # Dataset Information
     st.markdown("---")
-    st.header("2️⃣ Dataset Information")
+    st.header("2. Dataset Information")
     
     col1, col2 = st.columns(2)
     
@@ -74,7 +74,7 @@ if df is not None:
     
     # Statistical Summary
     st.markdown("---")
-    st.header("3️⃣ Statistical Summary")
+    st.header("3. Statistical Summary")
     
     st.subheader("Numerical Features")
     st.dataframe(df.describe(), use_container_width=True)
@@ -85,7 +85,7 @@ if df is not None:
     
     # Visualizations
     st.markdown("---")
-    st.header("4️⃣ Data Visualizations")
+    st.header("4. Data Visualizations")
     
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
@@ -138,7 +138,7 @@ if df is not None:
     # Correlation Analysis
     if len(numeric_cols) > 1:
         st.markdown("---")
-        st.header("5️⃣ Correlation Analysis")
+        st.header("5. Correlation Analysis")
         
         correlation_matrix = df[numeric_cols].corr()
         
