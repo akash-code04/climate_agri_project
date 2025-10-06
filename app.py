@@ -86,29 +86,43 @@ with tab1:
     st.download_button("📥 Download Processed Data", data=csv, file_name="processed_data.csv", mime="text/csv")
 
 # -------------------------------------------------------------------
-# TAB 2: AUTOMATIC COLUMN-WISE PLOTS
+# TAB 2: AUTOMATIC COLUMN-WISE PLOTS (Country-wise Analysis)
 # -------------------------------------------------------------------
 with tab2:
-    st.header("📈 Automatic Yearly Trends for All Numerical Columns")
-    st.markdown("Below are line plots showing how each numerical factor varies over the years.")
+    st.header("📈 Automatic Yearly Trends for All Numerical Columns (Country-wise)")
+    st.markdown("Select a country from the dropdown below to visualize how each numerical factor varies over the years for that country.")
 
-    if 'Year' not in df.columns:
+    # Check if 'Country' and 'Year' columns exist
+    if 'Country' not in df.columns:
+        st.error("⚠️ 'Country' column not found in dataset!")
+    elif 'Year' not in df.columns:
         st.error("⚠️ 'Year' column not found in dataset!")
     else:
-        numeric_cols = [col for col in df.select_dtypes(include=np.number).columns if col != 'Year']
+        # Country selection dropdown
+        countries = sorted(df['Country'].dropna().unique())
+        selected_country = st.selectbox("🌍 Select Country", countries, index=0)
 
-        # Create plots in two columns
-        cols = st.columns(2)
-        for idx, col in enumerate(numeric_cols):
-            with cols[idx % 2]:
-                fig, ax = plt.subplots(figsize=(7, 4))
-                sns.lineplot(x='Year', y=col, data=df, marker='o', ax=ax, linewidth=2)
-                ax.set_title(f"{col} Over Years", fontsize=12)
-                ax.set_xlabel("Year")
-                ax.set_ylabel(col)
-                ax.grid(True, linestyle='--', alpha=0.7)
-                st.pyplot(fig)
-                plt.close(fig)
+        # Filter dataset for the selected country
+        df_country = df[df['Country'] == selected_country]
+
+        if df_country.empty:
+            st.warning(f"No data available for {selected_country}.")
+        else:
+            numeric_cols = [col for col in df_country.select_dtypes(include=np.number).columns if col != 'Year']
+
+            st.markdown(f"### 📊 Yearly Trends for **{selected_country}**")
+            cols = st.columns(2)
+
+            for idx, col in enumerate(numeric_cols):
+                with cols[idx % 2]:
+                    fig, ax = plt.subplots(figsize=(7, 4))
+                    sns.lineplot(x='Year', y=col, data=df_country, marker='o', linewidth=2, ax=ax)
+                    ax.set_title(f"{col} Over Years ({selected_country})", fontsize=12)
+                    ax.set_xlabel("Year")
+                    ax.set_ylabel(col)
+                    ax.grid(True, linestyle='--', alpha=0.7)
+                    st.pyplot(fig)
+                    plt.close(fig)
 
 # -------------------------------------------------------------------
 # TAB 3: EDA INSIGHTS (in two-column layout)
