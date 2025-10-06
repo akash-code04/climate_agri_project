@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="ClimateAgriProject", page_icon="📊", layout="wide")
 # Title 
 st.title("Climate Change Effects On Agriculture") 
-st.markdown("---")
 
 # Load dataset from data folder 
 try: 
