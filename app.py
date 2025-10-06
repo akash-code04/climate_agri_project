@@ -12,9 +12,9 @@ st.title("Climate Change Effects On Agriculture")
 # Load dataset from data folder
 try:
     df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
-    st.success("✅ Dataset loaded successfully!")
+    st.markdown('<p style="margin-bottom:4px; color:green; font-weight:bold;">✅ Dataset loaded successfully!</p>', unsafe_allow_html=True)
 except FileNotFoundError:
-    st.error("❌ Dataset not found! Please ensure your CSV file is in the 'data' folder.")
+    st.markdown('<p style="margin-bottom:4px; color:red; font-weight:bold;">❌ Dataset not found! Please ensure your CSV file is in the \'data\' folder.</p>', unsafe_allow_html=True)
     st.stop()
 
 st.markdown("---")
