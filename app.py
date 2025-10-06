@@ -6,10 +6,10 @@ import seaborn as sns
 import plotly.express as px
 
 # Page configuration
-st.set_page_config(page_title="Data Explorer", page_icon="📊", layout="wide")
+st.set_page_config(page_title="ClimateAgriProject", page_icon="📊", layout="wide")
 
 # Title
-st.title("📊 Data Exploration & Visualization Dashboard")
+st.title("Climate Change Effects On Agriculture")
 st.markdown("---")
 
 # Load dataset from data folder
