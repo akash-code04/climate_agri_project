@@ -86,79 +86,17 @@ if df is not None:
     # Visualizations
     st.markdown("---")
     st.header("4. Data Visualizations")
+
+    st.subheader("Sample Bar Plot")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(df['Year'], df['Average_Temperature_C'], color='coral')
+    ax.set_title('Bar Plot')
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Average Temp')
+    plt.xticks(rotation=45)  # Rotate labels
+    st.pyplot(fig)
     
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
     
-    # Distribution plots
-    if numeric_cols:
-        st.subheader("Distribution of Numerical Features")
-        selected_num_col = st.selectbox("Select a numerical column:", numeric_cols)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            df[selected_num_col].hist(bins=30, edgecolor='black', ax=ax)
-            ax.set_title(f'Histogram of {selected_num_col}')
-            ax.set_xlabel(selected_num_col)
-            ax.set_ylabel('Frequency')
-            st.pyplot(fig)
-        
-        with col2:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            df.boxplot(column=selected_num_col, ax=ax)
-            ax.set_title(f'Boxplot of {selected_num_col}')
-            ax.set_ylabel(selected_num_col)
-            st.pyplot(fig)
-    
-    # Categorical plots
-    if categorical_cols:
-        st.subheader("Categorical Features Analysis")
-        selected_cat_col = st.selectbox("Select a categorical column:", categorical_cols)
-        
-        value_counts = df[selected_cat_col].value_counts()
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            value_counts.plot(kind='bar', ax=ax, color='skyblue')
-            ax.set_title(f'Count of {selected_cat_col}')
-            ax.set_xlabel(selected_cat_col)
-            ax.set_ylabel('Count')
-            plt.xticks(rotation=45, ha='right')
-            st.pyplot(fig)
-        
-        with col2:
-            fig = px.pie(values=value_counts.values, names=value_counts.index, 
-                        title=f'Distribution of {selected_cat_col}')
-            st.plotly_chart(fig, use_container_width=True)
-    
-    # Correlation Analysis
-    if len(numeric_cols) > 1:
-        st.markdown("---")
-        st.header("5. Correlation Analysis")
-        
-        correlation_matrix = df[numeric_cols].corr()
-        
-        fig, ax = plt.subplots(figsize=(12, 8))
-        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, 
-                    fmt='.2f', square=True, ax=ax)
-        ax.set_title('Correlation Heatmap')
-        st.pyplot(fig)
-        
-        # Scatter plot for relationship
-        st.subheader("Relationship between Features")
-        col1, col2 = st.columns(2)
-        with col1:
-            x_axis = st.selectbox("Select X-axis:", numeric_cols, key='x')
-        with col2:
-            y_axis = st.selectbox("Select Y-axis:", numeric_cols, key='y')
-        
-        if x_axis and y_axis:
-            fig = px.scatter(df, x=x_axis, y=y_axis, title=f'{x_axis} vs {y_axis}')
-            st.plotly_chart(fig, use_container_width=True)
     
     # Download processed data
     st.markdown("---")
