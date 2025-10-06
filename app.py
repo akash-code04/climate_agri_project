@@ -88,7 +88,7 @@ if df is not None:
     st.header("4. Data Visualizations")
 
     st.subheader("Sample Bar Plot")
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(5, 3))
     ax.bar(df['Year'], df['Average_Temperature_C'], color='coral')
     ax.set_title('Bar Plot')
     ax.set_xlabel('Year')
