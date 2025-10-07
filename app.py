@@ -128,7 +128,6 @@ with tab2:
                         x='Year',
                         y=col,
                         title=f"{col} Over Years ({selected_country})",
-                        trendline='ols'  # optional, to add trend line
                     )
 
                     
