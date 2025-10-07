@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 
 # -----------------------------
 # Streamlit Page Configuration
@@ -108,6 +109,7 @@ with tab2:
         if df_country.empty:
             st.warning(f"No data available for {selected_country}.")
         else:
+            # Note: Ensure np is imported (import numpy as np)
             numeric_cols = [col for col in df_country.select_dtypes(include=np.number).columns if col != 'Year']
 
             st.markdown(f"### 📊 Yearly Trends for **{selected_country}**")
@@ -115,15 +117,32 @@ with tab2:
 
             for idx, col in enumerate(numeric_cols):
                 with cols[idx % 2]:
-                    fig, ax = plt.subplots(figsize=(7, 4))
-                    sns.lineplot(x='Year', y=col, data=df_country, marker='o', linewidth=2, ax=ax)
-                    ax.set_title(f"{col} Over Years ({selected_country})", fontsize=12)
-                    ax.set_xlabel("Year")
-                    ax.set_ylabel(col)
-                    ax.grid(True, linestyle='--', alpha=0.7)
-                    st.pyplot(fig)
-                    plt.close(fig)
-
+                    # ----------------------------------------------------------
+                    # INTERACTIVE PLOTLY EXPRESS IMPLEMENTATION (REPLACING MPL)
+                    # ----------------------------------------------------------
+                    
+                    # 1. Create the interactive line plot using Plotly Express
+                    # We sort by 'Year' to ensure the line is drawn in chronological order
+                    fig = px.line(
+                        df_country.sort_values(by='Year'),
+                        x='Year',
+                        y=col,
+                        title=f"{col} Over Years ({selected_country})",
+                        markers=True  # Display a circle on each data point
+                    )
+                    
+                    # 2. Customize layout for better fit and aesthetic
+                    fig.update_layout(
+                        title_x=0.5, # Center the title
+                        height=350,  # Standardize height for better column layout
+                        margin=dict(t=50, b=20, l=40, r=20), # Adjust margins
+                        hovermode="x unified" # Show cleaner, unified tooltips on hover
+                    )
+                    
+                    # 3. Display the interactive chart in Streamlit
+                    # use_container_width=True ensures it fills the column width
+                    st.plotly_chart(fig, use_container_width=True)
+                    # ----------------------------------------------------------
 # -------------------------------------------------------------------
 # TAB 3: EDA INSIGHTS (in two-column layout)
 # -------------------------------------------------------------------
