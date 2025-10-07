@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+import plotly,graph_objects as go
 
 # -----------------------------
 # Streamlit Page Configuration
@@ -109,7 +110,7 @@ with tab2:
         if df_country.empty:
             st.warning(f"No data available for {selected_country}.")
         else:
-            # Note: Ensure np is imported (import numpy as np)
+            # Get numeric columns excluding 'Year'
             numeric_cols = [col for col in df_country.select_dtypes(include=np.number).columns if col != 'Year']
 
             st.markdown(f"### 📊 Yearly Trends for **{selected_country}**")
@@ -117,48 +118,69 @@ with tab2:
 
             for idx, col in enumerate(numeric_cols):
                 with cols[idx % 2]:
-                    # ----------------------------------------------------------
-                    # INTERACTIVE PLOTLY EXPRESS IMPLEMENTATION (REPLACING MPL)
-                    # ----------------------------------------------------------
-                    
-                    # 1. Create the interactive line plot using Plotly Express
-                    # We sort by 'Year' to ensure the line is drawn in chronological order
-                    fig = px.scatter(
-                        df_country,
-                        x='Year',
-                        y=col,
-                        title=f"{col} Over Years ({selected_country})",
-                    )
+                    # Aggregate: mean, min, max per Year for this column
+                    df_agg = df_country.groupby('Year')[col].agg(['mean', 'min', 'max']).reset_index()
 
-                    
-                    # 2. Customize layout for better fit and aesthetic
+                    # Create Plotly figure with shaded area
+                    fig = go.Figure()
+
+                    # Upper bound (max) trace
+                    fig.add_trace(go.Scatter(
+                        x=df_agg['Year'],
+                        y=df_agg['max'],
+                        mode='lines',
+                        line=dict(width=0),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ))
+
+                    # Lower bound (min) trace with fill to upper bound
+                    fig.add_trace(go.Scatter(
+                        x=df_agg['Year'],
+                        y=df_agg['min'],
+                        mode='lines',
+                        line=dict(width=0),
+                        fill='tonexty',
+                        fillcolor='rgba(0,100,80,0.2)',
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ))
+
+                    # Mean line trace
+                    fig.add_trace(go.Scatter(
+                        x=df_agg['Year'],
+                        y=df_agg['mean'],
+                        mode='lines+markers',
+                        line=dict(color='rgb(0,100,80)'),
+                        name=f"{col} Mean"
+                    ))
+
+                    # Layout customization
                     fig.update_layout(
-                        title_x=0,  # Align title to the left (0 = left, 0.5 = center)
+                        title=f"{col} Over Years ({selected_country})",
+                        title_x=0,  # Left align
                         height=350,
                         margin=dict(t=50, b=20, l=40, r=20),
                         hovermode="x unified",
-                    
+                        plot_bgcolor='rgba(128,128,128,0.1)',
                         xaxis=dict(
-                        showgrid=True,
-                        gridcolor='rgba(255,255,255,0.4)',  # lighter grid lines for contrast
-                        gridwidth=1,
-                        zeroline=False,
-                        showspikes = False,
+                            showgrid=True,
+                            gridcolor='rgba(255,255,255,0.4)',
+                            gridwidth=1,
+                            zeroline=False,
+                            showspikes=False,
                         ),
                         yaxis=dict(
-                        showgrid=True,
-                        gridcolor='rgba(255,255,255,0.4)',
-                        gridwidth=1,
-                        zeroline=False,
-                        showspikes = False,
+                            showgrid=True,
+                            gridcolor='rgba(255,255,255,0.4)',
+                            gridwidth=1,
+                            zeroline=False,
+                            showspikes=False,
                         )
                     )
 
-                    
-                    # 3. Display the interactive chart in Streamlit
-                    # use_container_width=True ensures it fills the column width
+                    # Render plot in Streamlit
                     st.plotly_chart(fig, use_container_width=True)
-                    # ----------------------------------------------------------
 # -------------------------------------------------------------------
 # TAB 3: EDA INSIGHTS (in two-column layout)
 # -------------------------------------------------------------------
