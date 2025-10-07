@@ -133,11 +133,26 @@ with tab2:
                     
                     # 2. Customize layout for better fit and aesthetic
                     fig.update_layout(
-                        title_x=0.5, # Center the title
-                        height=350,  # Standardize height for better column layout
-                        margin=dict(t=50, b=20, l=40, r=20), # Adjust margins
-                        hovermode="x unified" # Show cleaner, unified tooltips on hover
+                        title_x=0,  # Align title to the left (0 = left, 0.5 = center)
+                        height=350,
+                        margin=dict(t=50, b=20, l=40, r=20),
+                        hovermode="x unified",
+                        plot_bgcolor='rgba(128,128,128,0.75)',  # Grey background with 75% opacity
+                    
+                        xaxis=dict(
+                        showgrid=True,
+                        gridcolor='rgba(255,255,255,0.4)',  # lighter grid lines for contrast
+                        gridwidth=1,
+                        zeroline=False,
+                        ),
+                        yaxis=dict(
+                        showgrid=True,
+                        gridcolor='rgba(255,255,255,0.4)',
+                        gridwidth=1,
+                        zeroline=False,
+                        )
                     )
+
                     
                     # 3. Display the interactive chart in Streamlit
                     # use_container_width=True ensures it fills the column width
