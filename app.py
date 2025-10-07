@@ -123,13 +123,14 @@ with tab2:
                     
                     # 1. Create the interactive line plot using Plotly Express
                     # We sort by 'Year' to ensure the line is drawn in chronological order
-                    fig = px.line(
-                        df_country.sort_values(by='Year'),
+                    fig = px.scatter(
+                        df_country,
                         x='Year',
                         y=col,
                         title=f"{col} Over Years ({selected_country})",
-                        markers=True  # Display a circle on each data point
+                        trendline='ols'  # optional, to add trend line
                     )
+
                     
                     # 2. Customize layout for better fit and aesthetic
                     fig.update_layout(
