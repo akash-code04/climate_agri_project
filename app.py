@@ -137,7 +137,6 @@ with tab2:
                         height=350,
                         margin=dict(t=50, b=20, l=40, r=20),
                         hovermode="x unified",
-                        plot_bgcolor='rgba(128,128,128,0.75)',  # Grey background with 75% opacity
                     
                         xaxis=dict(
                         showgrid=True,
