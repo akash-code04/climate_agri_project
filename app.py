@@ -143,12 +143,14 @@ with tab2:
                         gridcolor='rgba(255,255,255,0.4)',  # lighter grid lines for contrast
                         gridwidth=1,
                         zeroline=False,
+                        showspikes = False,
                         ),
                         yaxis=dict(
                         showgrid=True,
                         gridcolor='rgba(255,255,255,0.4)',
                         gridwidth=1,
                         zeroline=False,
+                        showspikes = False,
                         )
                     )
 
