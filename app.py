@@ -15,13 +15,21 @@ st.title("🌾 Climate Change Effects on Agriculture")
 # -----------------------------
 # Load Dataset
 # -----------------------------
-try:
-    df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
-    st.success("✅ Dataset loaded successfully!")
-except FileNotFoundError:
-    st.error("❌ Dataset not found! Please place it in the 'data/' folder.")
-    st.stop()
+@st.cache_data 
+def load_data():
+    try:
+        df = pd.read_csv("data/climate_change_impact_on_agriculture_2024.csv")
+        return df
+    except FileNotFoundError:
+        st.error("❌ Dataset not found! Please place it in the 'data/' folder.")
+        return None
 
+df = load_data()
+
+if df is not None:
+    st.success("✅ Dataset loaded successfully!")
+else:
+    st.stop()
 # -----------------------------
 # Tabs for Navigation
 # -----------------------------
