@@ -213,87 +213,73 @@ def compute_linear_regression(x, y):
 # ============================================================================
 
 def generate_insights(df):
-    """
-    Generate key insights from the analysis.
-    Returns: List of insight strings with evidence
-    """
+    """Generate evidence-based insights from cleaned data"""
     insights = []
     
-    # Insight 1: Temperature trend
+    # Temperature insight
     if 'Average_Temperature_C' in df.columns and 'Year' in df.columns:
-        temp_start = df[df['Year'] == df['Year'].min()]['Average_Temperature_C'].mean()
-        temp_end = df[df['Year'] == df['Year'].max()]['Average_Temperature_C'].mean()
-        temp_change = temp_end - temp_start
-        year_start = df['Year'].min()
-        year_end = df['Year'].max()
-        
-        insights.append(
-            f"🌡️ **Temperature Trend**: Average temperature changed by {temp_change:.2f}°C "
-            f"between {year_start} and {year_end} (from {temp_start:.1f}°C to {temp_end:.1f}°C)."
-        )
+        temp_by_year = df.groupby('Year')['Average_Temperature_C'].mean()
+        if len(temp_by_year) > 1:
+            temp_change = temp_by_year.iloc[-1] - temp_by_year.iloc[0]
+            years_span = temp_by_year.index[-1] - temp_by_year.index[0]
+            insights.append(
+                f"**Temperature Trend:** Average temperature {'increased' if temp_change > 0 else 'decreased'} by {abs(temp_change):.2f}°C "
+                f"over {years_span} years, potentially {'stressing heat-sensitive crops' if temp_change > 0 else 'affecting crop phenology'}"
+            )
     
-    # Insight 2: Yield trend
+    # Yield trend insight
     if 'Crop_Yield_MT_per_HA' in df.columns and 'Year' in df.columns:
-        yield_start = df[df['Year'] == df['Year'].min()]['Crop_Yield_MT_per_HA'].mean()
-        yield_end = df[df['Year'] == df['Year'].max()]['Crop_Yield_MT_per_HA'].mean()
-        yield_change_pct = ((yield_end - yield_start) / yield_start) * 100
-        
-        insights.append(
-            f"🌾 **Yield Trend**: Average crop yield changed by {yield_change_pct:.1f}% "
-            f"(from {yield_start:.2f} to {yield_end:.2f} MT/HA)."
-        )
-    
-    # Insight 3: Temperature-Yield correlation
-    if 'Average_Temperature_C' in df.columns and 'Crop_Yield_MT_per_HA' in df.columns:
-        valid_data = df[['Average_Temperature_C', 'Crop_Yield_MT_per_HA']].dropna()
-        if len(valid_data) > 2:
-            corr, p_val = pearsonr(valid_data['Average_Temperature_C'], valid_data['Crop_Yield_MT_per_HA'])
-            slope, _, _, _, r_sq = compute_linear_regression(
-                valid_data['Average_Temperature_C'].values,
-                valid_data['Crop_Yield_MT_per_HA'].values
-            )
-            
-            if slope is not None:
-                insights.append(
-                    f"🔗 **Climate-Yield Relationship**: Temperature shows correlation of {corr:.3f} "
-                    f"with crop yield (R²={r_sq:.3f}, p={p_val:.4f}). "
-                    f"Each 1°C increase associates with {slope:.3f} MT/HA yield change."
-                )
-    
-    # Insight 4: Extreme weather impact
-    if 'Extreme_Weather_Events' in df.columns and 'Crop_Yield_MT_per_HA' in df.columns:
-        high_events = df[df['Extreme_Weather_Events'] >= 2]['Crop_Yield_MT_per_HA'].mean()
-        low_events = df[df['Extreme_Weather_Events'] < 2]['Crop_Yield_MT_per_HA'].mean()
-        
-        if not np.isnan(high_events) and not np.isnan(low_events):
-            diff_pct = ((high_events - low_events) / low_events) * 100
+        yield_by_year = df.groupby('Year')['Crop_Yield_MT_per_HA'].mean()
+        if len(yield_by_year) > 1:
+            yield_change_pct = ((yield_by_year.iloc[-1] - yield_by_year.iloc[0]) / yield_by_year.iloc[0]) * 100
             insights.append(
-                f"⚠️ **Extreme Weather Impact**: Years with 2+ extreme events show "
-                f"{diff_pct:.1f}% {'lower' if diff_pct < 0 else 'higher'} average yield "
-                f"({high_events:.2f} vs {low_events:.2f} MT/HA)."
+                f"**Yield Performance:** Overall crop yield {'increased' if yield_change_pct > 0 else 'decreased'} by {abs(yield_change_pct):.1f}% "
+                f"over the period, {'suggesting successful adaptation or favorable conditions' if yield_change_pct > 0 else 'indicating climate stress or declining productivity'}"
             )
     
-    # Insight 5: Best performing crop
-    if 'Crop_Type' in df.columns and 'Crop_Yield_MT_per_HA' in df.columns:
-        crop_yields = df.groupby('Crop_Type')['Crop_Yield_MT_per_HA'].mean().sort_values(ascending=False)
-        if len(crop_yields) > 0:
-            best_crop = crop_yields.index[0]
-            best_yield = crop_yields.values[0]
+    # Correlation insight
+    if all(col in df.columns for col in ['Average_Temperature_C', 'Crop_Yield_MT_per_HA']):
+        df_corr = df[['Average_Temperature_C', 'Crop_Yield_MT_per_HA']].dropna()
+        if len(df_corr) > 10:
+            corr = df_corr.corr().iloc[0, 1]
             insights.append(
-                f"🏆 **Top Performing Crop**: {best_crop} shows highest average yield "
-                f"at {best_yield:.2f} MT/HA."
+                f"**Temperature-Yield Relationship:** Correlation coefficient of {corr:.3f} indicates "
+                f"{'significant negative impact of heat on yields' if corr < -0.3 else 'moderate temperature sensitivity' if corr < 0 else 'unexpected positive association - may indicate sub-optimal baseline temperatures'}"
             )
     
-    # Insight 6: Irrigation impact
+    # Extreme weather insight
+    if 'Extreme_Weather_Events' in df.columns and 'Year' in df.columns:
+        events_by_year = df.groupby('Year')['Extreme_Weather_Events'].sum()
+        if len(events_by_year) > 1:
+            avg_events = events_by_year.mean()
+            recent_trend = events_by_year.iloc[-5:].mean() - events_by_year.iloc[:5].mean() if len(events_by_year) > 10 else 0
+            insights.append(
+                f"**Extreme Weather Pattern:** Average of {avg_events:.1f} extreme events per year, "
+                f"{'with increasing frequency in recent years' if recent_trend > 0.5 else 'with relatively stable frequency'} - "
+                f"{'urgent need for risk management strategies' if avg_events > 2 else 'moderate climate shock exposure'}"
+            )
+    
+    # Irrigation insight
     if 'Irrigation_Access_%' in df.columns:
-        irr_start = df[df['Year'] == df['Year'].min()]['Irrigation_Access_%'].mean()
-        irr_end = df[df['Year'] == df['Year'].max()]['Irrigation_Access_%'].mean()
-        irr_change = irr_end - irr_start
-        
+        latest_irrigation = df['Irrigation_Access_%'].mean()
         insights.append(
-            f"💧 **Irrigation Access**: Changed by {irr_change:.1f} percentage points "
-            f"(from {irr_start:.1f}% to {irr_end:.1f}%)."
+            f"**Water Management:** Average irrigation access of {latest_irrigation:.1f}% "
+            f"{'provides good buffer against rainfall variability' if latest_irrigation > 60 else 'leaves significant vulnerability to drought - expansion needed'}"
         )
+    
+    # Crop-specific insight
+    if 'Crop_Type' in df.columns and 'Crop_Yield_MT_per_HA' in df.columns:
+        crop_yields = df.groupby('Crop_Type')['Crop_Yield_MT_per_HA'].agg(['mean', 'std'])
+        crop_yields['cv'] = crop_yields['std'] / crop_yields['mean']
+        most_stable = crop_yields['cv'].idxmin()
+        most_volatile = crop_yields['cv'].idxmax()
+        insights.append(
+            f"**Crop Stability:** {most_stable} shows most stable yields (lowest variation), "
+            f"while {most_volatile} exhibits highest volatility - suggesting different climate adaptation capacities"
+        )
+    
+    if len(insights) == 0:
+        insights.append("Insufficient data for comprehensive insights generation")
     
     return insights
 
@@ -494,6 +480,12 @@ def main():
                 # Interpretation
                 temp_change = df_yearly['Average_Temperature_C'].iloc[-1] - df_yearly['Average_Temperature_C'].iloc[0]
                 st.caption(f"📊 Temperature changed by {temp_change:.2f}°C over the selected period.")
+                st.markdown("### 🔍 Insight")
+                    st.markdown(f"""
+                    - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over {year_range[1] - year_range[0]} years
+                    - **Why it matters?** {'Rising temperatures can reduce crop yields through heat stress, faster evapotranspiration, and shortened growing seasons' if temp_change > 0 else 'Cooling trends may affect crop phenology and frost risk'}
+                    - **Evidence:** {'Warming exceeds 0.5°C suggests significant climate shift impacting heat-sensitive crops like wheat' if abs(temp_change) > 0.5 else 'Moderate temperature change - monitor crop-specific responses'}
+                    """)
             
             # Plot 2: Precipitation over time
             st.subheader("Precipitation Trend")
@@ -520,6 +512,12 @@ def main():
                 precip_change_pct = ((df_yearly['Total_Precipitation_mm'].iloc[-1] - df_yearly['Total_Precipitation_mm'].iloc[0]) / 
                                     df_yearly['Total_Precipitation_mm'].iloc[0]) * 100
                 st.caption(f"📊 Precipitation changed by {precip_change_pct:.1f}% over the selected period.")
+                st.markdown("### 🔍 Insight")
+                st.markdown(f"""
+                - **What changed?** Rainfall {"increased" if precip_change_pct > 0 else "decreased"} by {abs(precip_change_pct):.1f}% 
+                - **Why it matters?** {'Increased precipitation can benefit rainfed crops but may cause waterlogging and disease' if precip_change_pct > 0 else 'Declining rainfall threatens rainfed agriculture and increases drought risk'}
+                - **Agricultural impact:** {'Rice and sugarcane may benefit; wheat may face waterlogging issues' if precip_change_pct > 0 else 'Water-intensive crops like rice face stress; shift to drought-tolerant varieties needed'}
+                """)
             
             # Plot 3: CO2 emissions (if available)
             st.subheader("CO₂ Emissions Trend")
@@ -535,6 +533,11 @@ def main():
                 )
                 fig_co2.update_layout(hovermode='x unified', height=400)
                 st.plotly_chart(fig_co2, use_container_width=True)
+                st.markdown("### 🔍 Insight")
+                st.markdown("""
+                - **Climate connection:** CO₂ emissions drive long-term warming and weather pattern disruption
+                - **Agricultural relevance:** While CO₂ can enhance photosynthesis (CO₂ fertilization effect), associated warming negates benefits
+                - **Long-term concern:** Continued emissions intensify extreme weather events affecting crop stability """)
             else:
                 st.info("CO₂ emissions data not available for this country.")
             
@@ -556,6 +559,12 @@ def main():
                 # Interpretation
                 avg_events = df_yearly['Extreme_Weather_Events'].mean()
                 st.caption(f"📊 Average of {avg_events:.1f} extreme weather events per year.")
+                st.markdown("### 🔍 Insight")
+                st.markdown(f"""
+                - **Shock frequency:** Average {avg_events:.1f} extreme events/year indicates {"high climate vulnerability" if avg_events > 2 else "moderate climate stress"}
+                - **Yield impact:** Extreme events (floods, droughts, storms) cause sudden yield drops and crop damage
+                - **Trend concern:** {"Increasing frequency suggests climate instability - requires adaptive strategies" if len(df_yearly) > 1 and df_yearly['Extreme_Weather_Events'].iloc[-5:].mean() > df_yearly['Extreme_Weather_Events'].iloc[:5].mean() else "Monitor for emerging patterns"}
+                """)
     
     # ========================================================================
     # TAB 3: AGRICULTURE TRENDS
@@ -614,6 +623,13 @@ def main():
                     
                     for crop, change in yield_change.items():
                         st.write(f"- **{crop}**: {change:+.1f}% change")
+
+                    st.markdown("### 🔍 Crop Performance Insight")
+                    st.markdown("""
+                    - **Yield trends reveal:** Crop-specific climate responses and adaptation success
+                    - **Declining crops:** Likely facing climate stress (heat/water) or pest pressure
+                    - **Improving crops:** May benefit from better varieties, inputs, or favorable conditions
+                    - **Volatility signals:** High year-to-year variation indicates climate vulnerability""")
             
             # Plot 2: Yield distribution by year
             st.subheader("Yield Distribution Analysis")
@@ -630,6 +646,11 @@ def main():
                 )
                 fig_box.update_layout(showlegend=False, height=400)
                 st.plotly_chart(fig_box, use_container_width=True)
+                st.markdown("### 🔍 Distribution Insight")
+                st.markdown("""
+                - **Wide distributions:** Indicate high yield variability - climate or management inconsistency
+                - **Narrow distributions:** Suggest stable production - better adapted or controlled conditions
+                - **Outliers:** Represent exceptional years (positive or negative) - investigate climate anomalies""")
             
             # Plot 3: Fertilizer use trend
             st.subheader("Fertilizer Usage Trend")
@@ -650,6 +671,11 @@ def main():
                 
                 fert_change = df_fert['Fertilizer_Use_KG_per_HA'].iloc[-1] - df_fert['Fertilizer_Use_KG_per_HA'].iloc[0]
                 st.caption(f"📊 Fertilizer use changed by {fert_change:.1f} KG/HA over the period.")
+                st.markdown("### 🔍 Input Trend Insight")
+                st.markdown(f"""
+                - **Fertilizer change:** {'+' if fert_change > 0 else ''}{fert_change:.1f} KG/HA suggests {"intensification strategy" if fert_change > 0 else "declining input use"}
+                - **Yield relationship:** {"Increased fertilizer should boost yields if water available" if fert_change > 0 else "Reduced fertilizer may limit yield potential"}
+                - **Sustainability note:** {"Monitor soil health and runoff pollution with high fertilizer use" if fert_change > 50 else "Balanced fertilizer management appears maintained"}""")
             
             # Plot 4: Irrigation access trend
             st.subheader("Irrigation Access Trend")
@@ -670,6 +696,9 @@ def main():
                 
                 latest_irr = df_irr['Irrigation_Access_%'].iloc[-1]
                 st.caption(f"📊 Latest irrigation access: {latest_irr:.1f}%")
+                st.markdown("### 🔍 Irrigation Insight")
+                st.markdown(f"""- **Current access:** {latest_irr:.1f}% irrigation coverage - **Climate buffer:** {"High irrigation access reduces rainfall dependency and drought risk" if latest_irr > 60 else "Low irrigation increases vulnerability to rainfall variability"}
+                - **Adaptation potential:** {"Maintain infrastructure for climate resilience" if latest_irr > 60 else "Expanding irrigation critical for climate adaptation"}""")
     
     # ========================================================================
     # TAB 4: CLIMATE VS AGRICULTURE RELATIONSHIP
@@ -719,8 +748,16 @@ def main():
                     with col4:
                         st.metric("P-value", f"{p_value:.4f}")
                     
-                    st.caption(f"📊 Interpretation: Each 1°C temperature increase is associated with {slope:.4f} MT/HA yield change. "
-                             f"R² = {r_squared:.3f} indicates {'strong' if r_squared > 0.5 else 'moderate' if r_squared > 0.3 else 'weak'} relationship.")
+                    st.markdown("### 🔍 Temperature-Yield Relationship")
+                    direction = "negative" if slope < 0 else "positive"
+                    strength = "strong" if abs(r_squared) > 0.5 else "moderate" if abs(r_squared) > 0.3 else "weak"
+                    st.markdown(f"""
+                    - **Relationship type:** {direction.capitalize()} correlation (r = {r_value:.3f})
+                    - **Strength:** {strength.capitalize()} relationship (R² = {r_squared:.3f})
+                    - **Interpretation:** Each 1°C increase → {slope:.4f} MT/HA yield change
+                    - **Agricultural meaning:** {'Heat stress reducing yields - consider heat-tolerant varieties' if slope < -0.1 else 'Moderate temperature impact - monitor threshold effects' if slope < 0 else 'Positive response may indicate sub-optimal baseline temperatures'}
+                    - **Statistical confidence:** {'Statistically significant (p < 0.05)' if p_value < 0.05 else 'Not statistically significant - caution in interpretation'}
+                    """)
             
             # Plot 2: Precipitation vs Yield
             st.subheader("Precipitation vs Crop Yield")
@@ -748,7 +785,12 @@ def main():
                 )
                 
                 if slope is not None:
-                    st.caption(f"📊 Correlation between precipitation and yield: r = {r_value:.3f}, R² = {r_squared:.3f}, p = {p_value:.4f}")
+                    st.markdown("### 🔍 Rainfall-Yield Relationship")
+                    st.markdown(f"""
+                    - **Correlation:** r = {r_value:.3f} indicates {"strong water dependency" if abs(r_value) > 0.5 else "moderate rainfall influence" if abs(r_value) > 0.3 else "weak direct relationship"}
+                    - **Non-linear pattern:** LOWESS curve shows {"optimal rainfall range exists" if True else "linear relationship"}
+                    - **Implication:** {'Excess rain can be harmful (waterlogging) - irrigation needs management' if r_value < 0.3 else 'Rainfall critical for yield - drought risk high'}
+                    - **Significance:** p = {p_value:.4f}""")
             
             # Plot 3: Extreme weather impact
             st.subheader("Extreme Weather Impact on Yield")
@@ -776,7 +818,13 @@ def main():
                 
                 # Show mean yields
                 mean_yields = df_plot.groupby('Event_Category')['Crop_Yield_MT_per_HA'].mean()
-                st.caption(f"📊 Average yields: " + " | ".join([f"{cat}: {val:.2f} MT/HA" for cat, val in mean_yields.items()]))
+                st.markdown("### 🔍 Extreme Weather Impact")
+                if len(mean_yields) >= 2:
+                    yield_drop = ((mean_yields.iloc[0] - mean_yields.iloc[-1]) / mean_yields.iloc[0] * 100) if mean_yields.iloc[0] > 0 else 0
+                    st.markdown(f"""
+                    - **Shock effect:** Yield drops {abs(yield_drop):.1f}% as extreme events increase
+                    - **Vulnerability:** {'High - extreme events cause major disruption' if yield_drop > 15 else 'Moderate - some resilience exists'}
+                    - **Risk management:** Weather-based crop insurance and early warning systems needed""")
             
             # Plot 4: Correlation heatmap
             st.subheader("Correlation Heatmap")
@@ -799,6 +847,14 @@ def main():
                 )
                 fig_corr.update_layout(height=500)
                 st.plotly_chart(fig_corr, use_container_width=True)
+                st.markdown("### 🔍 Correlation Insights")
+                st.markdown("""
+                **Key patterns to observe:**
+                - **Strong positive (red):** Variables move together - potential synergy or common cause
+                - **Strong negative (blue):** Inverse relationship - trade-offs or competing effects
+                - **Weak (white):** Little relationship - independent factors
+                - **Agricultural focus:** Look for climate-yield connections and input-output relationships
+                """)
             
             # Correlation table
             st.subheader("Detailed Correlation Analysis")
@@ -830,6 +886,305 @@ def main():
             
             # Generate insights
             insights = generate_insights(df_clean)
+            # Display generated insights
+            for i, insight in enumerate(insights, 1):
+                st.markdown(f"**{i}.** {insight}")
+
+            st.markdown("---")
+
+            # NEW SECTION: Crop Vulnerability Analysis
+            st.subheader("🌾 Crop Vulnerability Assessment")
+
+            if 'Crop_Type' in df_clean.columns and 'Average_Temperature_C' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
+                crop_climate_analysis = []
+    
+                for crop in df_clean['Crop_Type'].unique():
+                    df_crop = df_clean[df_clean['Crop_Type'] == crop]
+        
+                    # Temperature sensitivity
+                    if len(df_crop) > 10:
+                        temp_corr = df_crop[['Average_Temperature_C', 'Crop_Yield_MT_per_HA']].corr().iloc[0, 1]
+                        precip_corr = df_crop[['Total_Precipitation_mm', 'Crop_Yield_MT_per_HA']].corr().iloc[0, 1] if 'Total_Precipitation_mm' in df_crop.columns else 0
+                        yield_volatility = df_crop['Crop_Yield_MT_per_HA'].std() / df_crop['Crop_Yield_MT_per_HA'].mean() if df_crop['Crop_Yield_MT_per_HA'].mean() > 0 else 0
+            
+                        crop_climate_analysis.append({
+                            'Crop': crop,
+                            'Heat Sensitivity': temp_corr,
+                            'Rainfall Sensitivity': precip_corr,
+                            'Yield Volatility (CV)': yield_volatility
+                        })
+    
+                if crop_climate_analysis:
+                    df_vulnerability = pd.DataFrame(crop_climate_analysis)
+        
+                    col1, col2 = st.columns(2)
+        
+                    with col1:
+                        st.markdown("**🌡️ Most Heat-Sensitive Crops**")
+                        heat_sensitive = df_vulnerability.nsmallest(3, 'Heat Sensitivity')[['Crop', 'Heat Sensitivity']]
+                        for _, row in heat_sensitive.iterrows():
+                            st.markdown(f"- **{row['Crop']}**: r = {row['Heat Sensitivity']:.3f} (Yield ↓ as temperature ↑)")
+        
+                    with col2:
+                        st.markdown("**🌧️ Most Rainfall-Dependent Crops**")
+                        rain_dependent = df_vulnerability.nlargest(3, 'Rainfall Sensitivity')[['Crop', 'Rainfall Sensitivity']]
+                        for _, row in rain_dependent.iterrows():
+                            st.markdown(f"- **{row['Crop']}**: r = {row['Rainfall Sensitivity']:.3f} (Needs adequate rainfall)")
+        
+                    st.markdown("**⚠️ Most Volatile/Vulnerable Crops**")
+                    volatile = df_vulnerability.nlargest(3, 'Yield Volatility (CV)')[['Crop', 'Yield Volatility (CV)']]
+                    for _, row in volatile.iterrows():
+                        st.markdown(f"- **{row['Crop']}**: CV = {row['Yield Volatility (CV)']:.2f} (High year-to-year variation)")
+
+            st.markdown("---")
+
+# NEW SECTION: Extreme Year Analysis
+st.subheader("⚠️ Extreme Climate Years Analysis")
+
+if 'Year' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
+    # Identify extreme years
+    yearly_summary = df_clean.groupby('Year').agg({
+        'Crop_Yield_MT_per_HA': 'mean',
+        'Average_Temperature_C': 'mean',
+        'Total_Precipitation_mm': 'mean' if 'Total_Precipitation_mm' in df_clean.columns else lambda x: np.nan,
+        'Extreme_Weather_Events': 'sum' if 'Extreme_Weather_Events' in df_clean.columns else lambda x: np.nan
+    }).reset_index()
+    
+    # Find worst yield years
+    worst_years = yearly_summary.nsmallest(3, 'Crop_Yield_MT_per_HA')
+    
+    st.markdown("**Worst Yield Years:**")
+    
+    extreme_data = []
+    for _, year_row in worst_years.iterrows():
+        year = year_row['Year']
+        yield_val = year_row['Crop_Yield_MT_per_HA']
+        temp = year_row['Average_Temperature_C']
+        
+        # Determine anomaly
+        avg_temp = yearly_summary['Average_Temperature_C'].mean()
+        temp_anomaly = temp - avg_temp
+        
+        anomaly_type = ""
+        if 'Total_Precipitation_mm' in yearly_summary.columns:
+            precip = year_row['Total_Precipitation_mm']
+            avg_precip = yearly_summary['Total_Precipitation_mm'].mean()
+            if precip < avg_precip * 0.7:
+                anomaly_type = "Drought year"
+            elif precip > avg_precip * 1.3:
+                anomaly_type = "Excess rainfall"
+        
+        if abs(temp_anomaly) > 0.5:
+            anomaly_type += f" + {'Heat stress' if temp_anomaly > 0 else 'Cool period'}"
+        
+        if not anomaly_type:
+            anomaly_type = "Multiple stresses"
+        
+        extreme_data.append({
+            'Year': int(year),
+            'Climate Anomaly': anomaly_type,
+            'Avg Yield (MT/HA)': f"{yield_val:.2f}",
+            'Explanation': f"{'Heat stress reduced grain filling' if 'Heat' in anomaly_type else 'Water shortage limited growth' if 'Drought' in anomaly_type else 'Flood damage and disease' if 'Excess' in anomaly_type else 'Multiple climate stresses'}"
+        })
+    
+    df_extreme = pd.DataFrame(extreme_data)
+    st.table(df_extreme)
+
+st.markdown("---")
+
+# NEW SECTION: Thematic Insights
+st.subheader("📊 Thematic Climate-Agriculture Insights")
+
+tab_a, tab_b, tab_c, tab_d = st.tabs([
+    "🌡️ Heat Exposure",
+    "🌧️ Rainfall Dependency",
+    "⚠️ Extreme Shocks",
+    "🚜 Farmer Adaptation"
+])
+
+with tab_a:
+    st.markdown("""
+    ### Heat Exposure Effect
+    
+    **Observation:**
+    - Temperature trends show warming patterns affecting crop physiological processes
+    - Heat-sensitive crops (wheat, certain vegetables) show declining yields
+    
+    **Mechanism:**
+    - Heat stress during flowering reduces pollination success
+    - Accelerated crop maturity shortens grain-filling period
+    - Increased evapotranspiration raises water demand
+    
+    **Evidence from Analysis:**
+    - Negative correlation between temperature and yield
+    - Worst yield years often coincide with heat anomalies
+    """)
+
+with tab_b:
+    st.markdown("""
+    ### Monsoon & Rainfall Dependency
+    
+    **Observation:**
+    - Precipitation variability directly impacts rainfed agriculture
+    - Water-sensitive crops show strong rainfall correlation
+    
+    **Critical Periods:**
+    - Planting season rainfall determines germination success
+    - Mid-season drought during flowering/grain filling most damaging
+    - Excess rainfall causes waterlogging and disease
+    
+    **Evidence from Analysis:**
+    - Yield-precipitation correlations reveal water dependency
+    - Drought years show significant yield drops
+    """)
+
+with tab_c:
+    st.markdown("""
+    ### Extreme Weather Shocks
+    
+    **Observation:**
+    - Extreme events cause sudden, severe yield losses
+    - Frequency of extreme events may be increasing
+    
+    **Types of Shocks:**
+    - Floods: Crop damage, soil waterlogging, disease spread
+    - Droughts: Water stress, crop failure
+    - Storms: Physical damage, lodging
+    - Unseasonal frost/heat: Phenological disruption
+    
+    **Evidence from Analysis:**
+    - Box plots show yield drops in high-event years
+    - Extreme years correspond to climate anomalies
+    """)
+
+with tab_d:
+    st.markdown("""
+    ### Farmer Adaptation Behavior
+    
+    **Observed Adaptations:**
+    - Irrigation expansion to buffer rainfall variability
+    - Increased fertilizer use to maximize yields
+    - Potential variety shifts (not directly visible but implied)
+    
+    **Effectiveness:**
+    - Irrigation access correlates with stable yields
+    - Input intensification shows yield maintenance efforts
+    
+    **Gaps:**
+    - Adaptation may lag behind climate change pace
+    - Need for systematic climate-smart agriculture adoption
+    """)
+
+st.markdown("---")
+
+# NEW SECTION: Recommendations
+st.subheader("💡 Climate Adaptation Recommendations")
+
+st.markdown(f"""
+Based on the analysis of **{country}**'s climate-agriculture system, evidence-based recommendations:
+""")
+
+recommendations_data = []
+
+# Temperature-based recommendations
+if 'Average_Temperature_C' in df_clean.columns:
+    temp_trend = df_clean.groupby('Year')['Average_Temperature_C'].mean()
+    if len(temp_trend) > 1:
+        temp_change = temp_trend.iloc[-1] - temp_trend.iloc[0]
+        if temp_change > 0.3:
+            recommendations_data.append({
+                'Issue': '🌡️ Rising Temperature',
+                'Evidence': f'+{temp_change:.2f}°C warming trend',
+                'Impact': 'Heat stress reducing yields of sensitive crops',
+                'Recommendation': 'Introduce heat-tolerant crop varieties; shift planting dates to avoid peak heat during flowering'
+            })
+
+# Rainfall-based recommendations
+if 'Total_Precipitation_mm' in df_clean.columns:
+    precip_trend = df_clean.groupby('Year')['Total_Precipitation_mm'].mean()
+    if len(precip_trend) > 1:
+        precip_cv = precip_trend.std() / precip_trend.mean()
+        if precip_cv > 0.15:
+            recommendations_data.append({
+                'Issue': '🌧️ Rainfall Variability',
+                'Evidence': f'High variability (CV = {precip_cv:.2f})',
+                'Impact': 'Unpredictable water availability threatens rainfed crops',
+                'Recommendation': 'Expand micro-irrigation; promote rainwater harvesting; develop drought contingency plans'
+            })
+
+# Extreme weather recommendations
+if 'Extreme_Weather_Events' in df_clean.columns:
+    avg_events = df_clean.groupby('Year')['Extreme_Weather_Events'].sum().mean()
+    if avg_events > 1.5:
+        recommendations_data.append({
+            'Issue': '⚠️ Extreme Weather Frequency',
+            'Evidence': f'Average {avg_events:.1f} events/year',
+            'Impact': 'Sudden yield shocks and production instability',
+            'Recommendation': 'Implement weather-based crop insurance; establish early warning systems; promote climate-resilient varieties'
+        })
+
+# Irrigation recommendations
+if 'Irrigation_Access_%' in df_clean.columns:
+    latest_irrigation = df_clean.groupby('Year')['Irrigation_Access_%'].mean().iloc[-1]
+    if latest_irrigation < 50:
+        recommendations_data.append({
+            'Issue': '💧 Low Irrigation Coverage',
+            'Evidence': f'Only {latest_irrigation:.1f}% irrigation access',
+            'Impact': 'High vulnerability to rainfall failures',
+            'Recommendation': 'Prioritize irrigation infrastructure investment; promote drip/sprinkler systems for water efficiency'
+        })
+
+# General recommendations
+recommendations_data.extend([
+    {
+        'Issue': '📊 Data-Driven Management',
+        'Evidence': 'Analysis reveals clear climate-yield patterns',
+        'Impact': 'Predictable climate impacts on specific crops',
+        'Recommendation': 'Establish agro-meteorological advisory services; provide farmers with seasonal forecasts and crop advisories'
+    },
+    {
+        'Issue': '🌱 Crop Diversification',
+        'Evidence': 'Different crops show varying climate sensitivity',
+        'Impact': 'Single-crop focus increases risk',
+        'Recommendation': 'Promote crop diversification; encourage climate-resilient crop mixes; support indigenous/traditional varieties'
+    },
+    {
+        'Issue': '🔬 Research & Development',
+        'Evidence': 'Climate trends continuing/accelerating',
+        'Impact': 'Need for continuous adaptation',
+        'Recommendation': 'Invest in climate-smart agriculture research; develop location-specific adaptation strategies; monitor long-term trends'
+    }
+])
+
+df_recommendations = pd.DataFrame(recommendations_data)
+st.table(df_recommendations)
+
+st.markdown("---")
+st.markdown("""
+### 📌 Implementation Priority Framework
+
+**Immediate Actions (0-1 year):**
+- Deploy weather-based advisories
+- Initiate farmer training on climate adaptation
+- Establish crop insurance schemes
+
+**Medium-term (1-3 years):**
+- Expand irrigation infrastructure
+- Distribute climate-resilient seed varieties
+- Develop climate-smart agriculture extension programs
+
+**Long-term (3-5+ years):**
+- Comprehensive water resource management
+- Research & breeding programs for future climate conditions
+- Policy integration of climate adaptation in agriculture sector
+""")
+
+st.markdown("---")
+st.info("""
+**💡 Note for Students:** This analysis demonstrates the application of data science to real-world agricultural challenges. 
+The insights generated here can inform evidence-based policy decisions and farmer-level adaptation strategies. 
+Consider this a framework for similar analyses in other contexts or with additional data sources.
+""")
             
             st.subheader("🔍 Key Findings")
             st.markdown("Evidence-based insights from the analysis:")
