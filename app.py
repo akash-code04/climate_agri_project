@@ -938,144 +938,144 @@ def main():
 
             st.markdown("---")
 
-# NEW SECTION: Extreme Year Analysis
-st.subheader("⚠️ Extreme Climate Years Analysis")
+        # NEW SECTION: Extreme Year Analysis
+        st.subheader("⚠️ Extreme Climate Years Analysis")
 
-if 'Year' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
-    # Identify extreme years
-    yearly_summary = df_clean.groupby('Year').agg({
-        'Crop_Yield_MT_per_HA': 'mean',
-        'Average_Temperature_C': 'mean',
-        'Total_Precipitation_mm': 'mean' if 'Total_Precipitation_mm' in df_clean.columns else lambda x: np.nan,
-        'Extreme_Weather_Events': 'sum' if 'Extreme_Weather_Events' in df_clean.columns else lambda x: np.nan
-    }).reset_index()
+        if 'Year' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
+            # Identify extreme years
+            yearly_summary = df_clean.groupby('Year').agg({
+                'Crop_Yield_MT_per_HA': 'mean',
+                'Average_Temperature_C': 'mean',
+                'Total_Precipitation_mm': 'mean' if 'Total_Precipitation_mm' in df_clean.columns else lambda x: np.nan,
+                'Extreme_Weather_Events': 'sum' if 'Extreme_Weather_Events' in df_clean.columns else lambda x: np.nan
+            }).reset_index()
     
-    # Find worst yield years
-    worst_years = yearly_summary.nsmallest(3, 'Crop_Yield_MT_per_HA')
+            # Find worst yield years
+            worst_years = yearly_summary.nsmallest(3, 'Crop_Yield_MT_per_HA')
     
-    st.markdown("**Worst Yield Years:**")
+            st.markdown("**Worst Yield Years:**")
     
-    extreme_data = []
-    for _, year_row in worst_years.iterrows():
-        year = year_row['Year']
-        yield_val = year_row['Crop_Yield_MT_per_HA']
-        temp = year_row['Average_Temperature_C']
+            extreme_data = []
+            for _, year_row in worst_years.iterrows():
+                year = year_row['Year']
+                yield_val = year_row['Crop_Yield_MT_per_HA']
+                temp = year_row['Average_Temperature_C']
         
-        # Determine anomaly
-        avg_temp = yearly_summary['Average_Temperature_C'].mean()
-        temp_anomaly = temp - avg_temp
+                # Determine anomaly
+                avg_temp = yearly_summary['Average_Temperature_C'].mean()
+                temp_anomaly = temp - avg_temp
         
-        anomaly_type = ""
-        if 'Total_Precipitation_mm' in yearly_summary.columns:
-            precip = year_row['Total_Precipitation_mm']
-            avg_precip = yearly_summary['Total_Precipitation_mm'].mean()
-            if precip < avg_precip * 0.7:
-                anomaly_type = "Drought year"
-            elif precip > avg_precip * 1.3:
-                anomaly_type = "Excess rainfall"
+                anomaly_type = ""
+                if 'Total_Precipitation_mm' in yearly_summary.columns:
+                    precip = year_row['Total_Precipitation_mm']
+                    avg_precip = yearly_summary['Total_Precipitation_mm'].mean()
+                    if precip < avg_precip * 0.7:
+                        anomaly_type = "Drought year"
+                    elif precip > avg_precip * 1.3:
+                        anomaly_type = "Excess rainfall"
         
-        if abs(temp_anomaly) > 0.5:
-            anomaly_type += f" + {'Heat stress' if temp_anomaly > 0 else 'Cool period'}"
+                if abs(temp_anomaly) > 0.5:
+                    anomaly_type += f" + {'Heat stress' if temp_anomaly > 0 else 'Cool period'}"
         
-        if not anomaly_type:
-            anomaly_type = "Multiple stresses"
+                if not anomaly_type:
+                    anomaly_type = "Multiple stresses"
         
-        extreme_data.append({
-            'Year': int(year),
-            'Climate Anomaly': anomaly_type,
-            'Avg Yield (MT/HA)': f"{yield_val:.2f}",
-            'Explanation': f"{'Heat stress reduced grain filling' if 'Heat' in anomaly_type else 'Water shortage limited growth' if 'Drought' in anomaly_type else 'Flood damage and disease' if 'Excess' in anomaly_type else 'Multiple climate stresses'}"
-        })
+                extreme_data.append({
+                    'Year': int(year),
+                    'Climate Anomaly': anomaly_type,
+                    'Avg Yield (MT/HA)': f"{yield_val:.2f}",
+                    'Explanation': f"{'Heat stress reduced grain filling' if 'Heat' in anomaly_type else 'Water shortage limited growth' if 'Drought' in anomaly_type else 'Flood damage and disease' if 'Excess' in anomaly_type else 'Multiple climate stresses'}"
+                })
     
-    df_extreme = pd.DataFrame(extreme_data)
-    st.table(df_extreme)
+            df_extreme = pd.DataFrame(extreme_data)
+            st.table(df_extreme)
 
-st.markdown("---")
+        st.markdown("---")
 
-# NEW SECTION: Thematic Insights
-st.subheader("📊 Thematic Climate-Agriculture Insights")
+        # NEW SECTION: Thematic Insights
+        st.subheader("📊 Thematic Climate-Agriculture Insights")
 
-tab_a, tab_b, tab_c, tab_d = st.tabs([
-    "🌡️ Heat Exposure",
-    "🌧️ Rainfall Dependency",
-    "⚠️ Extreme Shocks",
-    "🚜 Farmer Adaptation"
-])
+        tab_a, tab_b, tab_c, tab_d = st.tabs([
+            "🌡️ Heat Exposure",
+            "🌧️ Rainfall Dependency",
+            "⚠️ Extreme Shocks",
+            "🚜 Farmer Adaptation"
+        ])
 
-with tab_a:
-    st.markdown("""
-    ### Heat Exposure Effect
+        with tab_a:
+            st.markdown("""
+            ### Heat Exposure Effect
     
-    **Observation:**
-    - Temperature trends show warming patterns affecting crop physiological processes
-    - Heat-sensitive crops (wheat, certain vegetables) show declining yields
+            **Observation:**
+            - Temperature trends show warming patterns affecting crop physiological processes
+            - Heat-sensitive crops (wheat, certain vegetables) show declining yields
     
-    **Mechanism:**
-    - Heat stress during flowering reduces pollination success
-    - Accelerated crop maturity shortens grain-filling period
-    - Increased evapotranspiration raises water demand
+            **Mechanism:**
+            - Heat stress during flowering reduces pollination success
+            - Accelerated crop maturity shortens grain-filling period
+            - Increased evapotranspiration raises water demand
     
-    **Evidence from Analysis:**
-    - Negative correlation between temperature and yield
-    - Worst yield years often coincide with heat anomalies
-    """)
+            **Evidence from Analysis:**
+            - Negative correlation between temperature and yield
+            - Worst yield years often coincide with heat anomalies
+            """)
 
-with tab_b:
-    st.markdown("""
-    ### Monsoon & Rainfall Dependency
+        with tab_b:
+            st.markdown("""
+            ### Monsoon & Rainfall Dependency
     
-    **Observation:**
-    - Precipitation variability directly impacts rainfed agriculture
-    - Water-sensitive crops show strong rainfall correlation
+            **Observation:**
+            - Precipitation variability directly impacts rainfed agriculture
+            - Water-sensitive crops show strong rainfall correlation
     
-    **Critical Periods:**
-    - Planting season rainfall determines germination success
-    - Mid-season drought during flowering/grain filling most damaging
-    - Excess rainfall causes waterlogging and disease
+            **Critical Periods:**
+            - Planting season rainfall determines germination success
+            - Mid-season drought during flowering/grain filling most damaging
+            - Excess rainfall causes waterlogging and disease
     
-    **Evidence from Analysis:**
-    - Yield-precipitation correlations reveal water dependency
-    - Drought years show significant yield drops
-    """)
+            **Evidence from Analysis:**
+            - Yield-precipitation correlations reveal water dependency
+            - Drought years show significant yield drops
+            """)
 
-with tab_c:
-    st.markdown("""
-    ### Extreme Weather Shocks
+        with tab_c:
+            st.markdown("""
+            ### Extreme Weather Shocks
     
-    **Observation:**
-    - Extreme events cause sudden, severe yield losses
-    - Frequency of extreme events may be increasing
+            **Observation:**
+            - Extreme events cause sudden, severe yield losses
+            - Frequency of extreme events may be increasing
     
-    **Types of Shocks:**
-    - Floods: Crop damage, soil waterlogging, disease spread
-    - Droughts: Water stress, crop failure
-    - Storms: Physical damage, lodging
-    - Unseasonal frost/heat: Phenological disruption
+            **Types of Shocks:**
+            - Floods: Crop damage, soil waterlogging, disease spread
+            - Droughts: Water stress, crop failure
+            - Storms: Physical damage, lodging
+            - Unseasonal frost/heat: Phenological disruption
     
-    **Evidence from Analysis:**
-    - Box plots show yield drops in high-event years
-    - Extreme years correspond to climate anomalies
-    """)
+            **Evidence from Analysis:**
+            - Box plots show yield drops in high-event years
+            - Extreme years correspond to climate anomalies
+            """)
 
-with tab_d:
-    st.markdown("""
-    ### Farmer Adaptation Behavior
+        with tab_d:
+            st.markdown("""
+            ### Farmer Adaptation Behavior
     
-    **Observed Adaptations:**
-    - Irrigation expansion to buffer rainfall variability
-    - Increased fertilizer use to maximize yields
-    - Potential variety shifts (not directly visible but implied)
+            **Observed Adaptations:**
+            - Irrigation expansion to buffer rainfall variability
+            - Increased fertilizer use to maximize yields
+            - Potential variety shifts (not directly visible but implied)
     
-    **Effectiveness:**
-    - Irrigation access correlates with stable yields
-    - Input intensification shows yield maintenance efforts
+            **Effectiveness:**
+            - Irrigation access correlates with stable yields
+            - Input intensification shows yield maintenance efforts
     
-    **Gaps:**
-    - Adaptation may lag behind climate change pace
-    - Need for systematic climate-smart agriculture adoption
-    """)
+            **Gaps:**
+            - Adaptation may lag behind climate change pace
+            - Need for systematic climate-smart agriculture adoption
+            """)
 
-st.markdown("---")
+        st.markdown("---")
 
 # NEW SECTION: Recommendations
 st.subheader("💡 Climate Adaptation Recommendations")
