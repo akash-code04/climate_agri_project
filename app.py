@@ -455,18 +455,6 @@ def main():
             st.markdown("---")
             st.subheader("📄 Data Preview (First 50 Rows)")
             st.dataframe(df_clean.head(50), use_container_width=True, height=400)
-            
-            st.markdown("---")
-            st.subheader("💾 Export Cleaned Data")
-            csv = df_clean.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Cleaned CSV",
-                data=csv,
-                file_name=f"{selected_country}_cleaned_data.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
-        
         else:
             st.info("👆 Please select a country and click 'Load & Clean Data' to begin analysis.")
     
