@@ -3,31 +3,7 @@
 PROJECT: Climate Change Impact on Agriculture — Country-Focused EDA
 COURSE: 2nd-Year Engineering Mini-Project
 ================================================================================
-
-PURPOSE:
-This Streamlit app performs Exploratory Data Analysis (EDA) on climate and 
-agriculture data. Focus: single country analysis to understand how climate 
-change affects agricultural productivity over time.
-
-DATASET ASSUMPTIONS:
-Expected columns (handles missing gracefully):
-- Country, Region, Year, Crop_Type, Crop_Yield_MT_per_HA
-- Average_Temperature_C, Total_Precipitation_mm, CO2_Emissions_MT
-- Extreme_Weather_Events, Irrigation_Access_%, Fertilizer_Use_KG_per_HA
-- Pesticide_Use_KG_per_HA, Soil_Health_Index, Adaptation_Strategies
-- Economic_Impact_Million_USD
-
-HOW TO RUN:
-1. Place your CSV file in: data/climate_change_impact_on_agriculture_2024.csv
-2. Install dependencies: pip install streamlit pandas numpy plotly scipy seaborn
-3. Run: streamlit run streamlit_app.py
-4. Select country in Tab 1, then explore other tabs
-
-AUTHOR: Student Project Template
-DATE: 2024
-================================================================================
 """
-
 import streamlit as st
 import pandas as pd
 import numpy as np
