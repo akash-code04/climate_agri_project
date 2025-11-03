@@ -481,11 +481,11 @@ def main():
                 temp_change = df_yearly['Average_Temperature_C'].iloc[-1] - df_yearly['Average_Temperature_C'].iloc[0]
                 st.caption(f"📊 Temperature changed by {temp_change:.2f}°C over the selected period.")
                 st.markdown("### 🔍 Insight")
-                    st.markdown(f"""
-                    - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over {year_range[1] - year_range[0]} years
-                    - **Why it matters?** {'Rising temperatures can reduce crop yields through heat stress, faster evapotranspiration, and shortened growing seasons' if temp_change > 0 else 'Cooling trends may affect crop phenology and frost risk'}
-                    - **Evidence:** {'Warming exceeds 0.5°C suggests significant climate shift impacting heat-sensitive crops like wheat' if abs(temp_change) > 0.5 else 'Moderate temperature change - monitor crop-specific responses'}
-                    """)
+                st.markdown(f"""
+                - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over {year_range[1] - year_range[0]} years
+                - **Why it matters?** {'Rising temperatures can reduce crop yields through heat stress, faster evapotranspiration, and shortened growing seasons' if temp_change > 0 else 'Cooling trends may affect crop phenology and frost risk'}
+                - **Evidence:** {'Warming exceeds 0.5°C suggests significant climate shift impacting heat-sensitive crops like wheat' if abs(temp_change) > 0.5 else 'Moderate temperature change - monitor crop-specific responses'}
+                """)
             
             # Plot 2: Precipitation over time
             st.subheader("Precipitation Trend")
