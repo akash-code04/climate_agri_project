@@ -429,26 +429,13 @@ def main():
         else:
             df_clean = st.session_state['cleaned_df']
             country = st.session_state['selected_country']
-            
+        
             st.header(f"🌡️ Climate Trends - {country}")
             st.markdown("Explore how climate variables have changed over time.")
-            
-            # Controls
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                year_range = st.slider(
-                    "Select Year Range:",
-                    min_value=int(df_clean['Year'].min()),
-                    max_value=int(df_clean['Year'].max()),
-                    value=(int(df_clean['Year'].min()), int(df_clean['Year'].max())),
-                    key='climate_year_range'
-                )
-            with col2:
-                smoothing = st.toggle("Apply Smoothing", value=False, key='climate_smoothing')
-            
-            # Filter by year range
-            df_filtered = df_clean[(df_clean['Year'] >= year_range[0]) & (df_clean['Year'] <= year_range[1])]
-            
+        
+            # Use all data without filtering
+            df_filtered = df_clean
+        
             # Aggregate by year
             df_yearly = df_filtered.groupby('Year').agg({
                 'Average_Temperature_C': 'mean',
@@ -456,7 +443,7 @@ def main():
                 'CO2_Emissions_MT': 'mean',
                 'Extreme_Weather_Events': 'sum'
             }).reset_index()
-            
+        
             # Plot 1: Temperature over time
             st.subheader("Temperature Trend")
             if 'Average_Temperature_C' in df_yearly.columns:
@@ -468,25 +455,20 @@ def main():
                     labels={'Average_Temperature_C': 'Temperature (°C)'},
                     markers=True
                 )
-                
-                if smoothing:
-                    df_yearly['temp_smooth'] = df_yearly['Average_Temperature_C'].rolling(window=3, center=True).mean()
-                    fig_temp.add_scatter(x=df_yearly['Year'], y=df_yearly['temp_smooth'], 
-                                       mode='lines', name='Smoothed', line=dict(color='red', width=2))
-                
+            
                 fig_temp.update_layout(hovermode='x unified', height=400)
                 st.plotly_chart(fig_temp, use_container_width=True)
-                
+            
                 # Interpretation
                 temp_change = df_yearly['Average_Temperature_C'].iloc[-1] - df_yearly['Average_Temperature_C'].iloc[0]
                 st.caption(f"📊 Temperature changed by {temp_change:.2f}°C over the selected period.")
                 st.markdown("### 🔍 Insight")
                 st.markdown(f"""
-                - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over {year_range[1] - year_range[0]} years
+                - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over the entire period
                 - **Why it matters?** {'Rising temperatures can reduce crop yields through heat stress, faster evapotranspiration, and shortened growing seasons' if temp_change > 0 else 'Cooling trends may affect crop phenology and frost risk'}
                 - **Evidence:** {'Warming exceeds 0.5°C suggests significant climate shift impacting heat-sensitive crops like wheat' if abs(temp_change) > 0.5 else 'Moderate temperature change - monitor crop-specific responses'}
                 """)
-            
+        
             # Plot 2: Precipitation over time
             st.subheader("Precipitation Trend")
             if 'Total_Precipitation_mm' in df_yearly.columns:
@@ -499,18 +481,13 @@ def main():
                     markers=True,
                     color_discrete_sequence=['teal']
                 )
-                
-                if smoothing:
-                    df_yearly['precip_smooth'] = df_yearly['Total_Precipitation_mm'].rolling(window=3, center=True).mean()
-                    fig_precip.add_scatter(x=df_yearly['Year'], y=df_yearly['precip_smooth'],
-                                         mode='lines', name='Smoothed', line=dict(color='darkgreen', width=2))
-                
+            
                 fig_precip.update_layout(hovermode='x unified', height=400)
                 st.plotly_chart(fig_precip, use_container_width=True)
-                
+            
                 # Interpretation
                 precip_change_pct = ((df_yearly['Total_Precipitation_mm'].iloc[-1] - df_yearly['Total_Precipitation_mm'].iloc[0]) / 
-                                    df_yearly['Total_Precipitation_mm'].iloc[0]) * 100
+                                df_yearly['Total_Precipitation_mm'].iloc[0]) * 100
                 st.caption(f"📊 Precipitation changed by {precip_change_pct:.1f}% over the selected period.")
                 st.markdown("### 🔍 Insight")
                 st.markdown(f"""
@@ -518,7 +495,7 @@ def main():
                 - **Why it matters?** {'Increased precipitation can benefit rainfed crops but may cause waterlogging and disease' if precip_change_pct > 0 else 'Declining rainfall threatens rainfed agriculture and increases drought risk'}
                 - **Agricultural impact:** {'Rice and sugarcane may benefit; wheat may face waterlogging issues' if precip_change_pct > 0 else 'Water-intensive crops like rice face stress; shift to drought-tolerant varieties needed'}
                 """)
-            
+        
             # Plot 3: CO2 emissions (if available)
             st.subheader("CO₂ Emissions Trend")
             if 'CO2_Emissions_MT' in df_yearly.columns and df_yearly['CO2_Emissions_MT'].notna().any():
@@ -537,10 +514,11 @@ def main():
                 st.markdown("""
                 - **Climate connection:** CO₂ emissions drive long-term warming and weather pattern disruption
                 - **Agricultural relevance:** While CO₂ can enhance photosynthesis (CO₂ fertilization effect), associated warming negates benefits
-                - **Long-term concern:** Continued emissions intensify extreme weather events affecting crop stability """)
+                - **Long-term concern:** Continued emissions intensify extreme weather events affecting crop stability
+                """)
             else:
                 st.info("CO₂ emissions data not available for this country.")
-            
+        
             # Plot 4: Extreme weather events
             st.subheader("Extreme Weather Events")
             if 'Extreme_Weather_Events' in df_yearly.columns:
@@ -555,7 +533,7 @@ def main():
                 )
                 fig_events.update_layout(hovermode='x unified', height=400)
                 st.plotly_chart(fig_events, use_container_width=True)
-                
+            
                 # Interpretation
                 avg_events = df_yearly['Extreme_Weather_Events'].mean()
                 st.caption(f"📊 Average of {avg_events:.1f} extreme weather events per year.")
