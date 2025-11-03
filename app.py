@@ -1186,11 +1186,11 @@ The insights generated here can inform evidence-based policy decisions and farme
 Consider this a framework for similar analyses in other contexts or with additional data sources.
 """)
             
-            st.subheader("🔍 Key Findings")
-            st.markdown("Evidence-based insights from the analysis:")
+st.subheader("🔍 Key Findings")
+st.markdown("Evidence-based insights from the analysis:")
             
-            for i, insight in enumerate(insights, 1):
-                st.markdown(f"**{i}.** {insight}")
+for i, insight in enumerate(insights, 1):
+    st.markdown(f"**{i}.** {insight}")
 # ============================================================================
 # RUN THE APP
 # ============================================================================
