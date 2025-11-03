@@ -951,53 +951,6 @@ def main():
             )
 
 # ============================================================================
-# VIVA QUESTIONS & ANSWERS (For Student Reference)
-# ============================================================================
-"""
-COMMON VIVA QUESTIONS & ANSWERS:
-
-1. Q: Why did you choose this topic?
-   A: Climate change is a pressing global issue affecting agriculture and food security. 
-   This analysis helps understand the relationship and inform policy decisions.
-
-2. Q: What is Exploratory Data Analysis (EDA)?
-   A: EDA is the process of analyzing datasets to summarize their main characteristics, 
-   often using visual methods, before applying statistical models.
-
-3. Q: Why focus on one country instead of comparing multiple countries?
-   A: Each country has unique geography, climate, and agricultural practices. 
-   Country-specific analysis provides actionable insights relevant to that context.
-
-4. Q: How did you handle missing data?
-   A: We used multiple strategies: dropping rows with missing essential fields, 
-   forward/backward fill for time-series data, and median imputation for others.
-
-5. Q: What is the significance of R² and p-value?
-   A: R² (0-1) shows how much variance is explained by the model. P-value < 0.05 
-   indicates statistical significance (relationship likely not due to chance).
-
-6. Q: Why use both Pearson and Spearman correlation?
-   A: Pearson measures linear relationships, Spearman measures monotonic relationships 
-   and is robust to outliers. Using both provides comprehensive understanding.
-
-7. Q: What are outliers and how did you detect them?
-   A: Outliers are data points significantly different from others. We used IQR method: 
-   values below Q1-1.5*IQR or above Q3+1.5*IQR are flagged as outliers.
-
-8. Q: What is the difference between correlation and causation?
-   A: Correlation shows variables move together, but doesn't prove one causes the other. 
-   Additional analysis is needed to establish causation.
-
-9. Q: How can this analysis help policymakers?
-   A: It identifies climate vulnerabilities, effective adaptation strategies, and regions 
-   needing intervention, enabling data-driven policy decisions.
-
-10. Q: What would you do differently with more time/resources?
-    A: Add regional analysis, implement ML models for prediction, integrate more data 
-    sources (satellite imagery, soil data), and perform time-lagged causality analysis.
-"""
-
-# ============================================================================
 # RUN THE APP
 # ============================================================================
 if __name__ == "__main__":
