@@ -746,7 +746,7 @@ def main():
                     with col3:
                         st.metric("Correlation", f"{r_value:.4f}")
                     with col4:
-                        st.metric("P-value", f"{p_value:.4f}")
+                        st.metric("P-value", f"{p_value:.8f}")
                     
                     st.markdown("### 🔍 Temperature-Yield Relationship")
                     direction = "negative" if slope < 0 else "positive"
