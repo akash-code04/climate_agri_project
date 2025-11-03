@@ -433,18 +433,7 @@ def main():
             st.header(f"🌡️ Climate Trends - {country}")
             st.markdown("Explore how climate variables have changed over time.")
             
-            # Controls
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                year_range = st.slider(
-                    "Select Year Range:",
-                    min_value=int(df_clean['Year'].min()),
-                    max_value=int(df_clean['Year'].max()),
-                    value=(int(df_clean['Year'].min()), int(df_clean['Year'].max())),
-                    key='climate_year_range'
-                )
-            with col2:
-                smoothing = st.toggle("Apply Smoothing", value=False, key='climate_smoothing')
+
             
             # Filter by year range
             df_filtered = df_clean[(df_clean['Year'] >= year_range[0]) & (df_clean['Year'] <= year_range[1])]
