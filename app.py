@@ -290,7 +290,7 @@ def generate_insights(df):
 def main():
     # Header
     st.title("🌾 Climate Change Impact on Agriculture")
-    st.markdown("**2nd-Year Engineering Mini-Project | Country-Focused EDA**")
+    st.markdown("**Akash Gajare | 124B1D059 | A3 Batch**")
     st.markdown("---")
     
     # Load data
@@ -310,18 +310,18 @@ def main():
     
     # Create tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📘 Country Overview",
-        "🌡️ Climate Trends",
-        "🌾 Agriculture Trends",
-        "🔗 Climate vs Agriculture",
-        "💡 Key Insights & Future Scope"
+        "Country Overview",
+        "Climate Trends",
+        "Agriculture Trends",
+        "Climate vs Agriculture",
+        "Key Insights & Future Scope"
     ])
     
     # ========================================================================
     # TAB 1: COUNTRY OVERVIEW
     # ========================================================================
     with tab1:
-        st.header("1️⃣ Country Selection & Data Overview")
+        st.header("Country Selection & Data Overview")
         st.markdown("Select a country to analyze its climate-agriculture relationship.")
         
         # Get list of countries
@@ -331,14 +331,14 @@ def main():
         
         with col1:
             selected_country = st.selectbox(
-                "🌍 Select Country:",
+                "Select Country:",
                 options=countries,
                 index=0,
                 key='country_selector'
             )
         
         with col2:
-            load_button = st.button("🔄 Load & Clean Data", type="primary", use_container_width=True)
+            load_button = st.button("Load & Clean Data", type="primary", use_container_width=True)
         
         # Load and clean data when button clicked
         if load_button or (st.session_state['selected_country'] != selected_country):
@@ -362,7 +362,7 @@ def main():
             report = st.session_state['cleaning_report']
             
             st.markdown("---")
-            st.subheader("📊 Data Cleaning Summary")
+            st.subheader("Data Cleaning Summary")
             
             col1, col2, col3, col4 = st.columns(4)
             with col1:
@@ -381,7 +381,7 @@ def main():
                 st.metric("Missing Values (After)", report['missing_after_imputation'])
             
             st.markdown("---")
-            st.subheader("📈 Dataset Metrics")
+            st.subheader("Dataset Metrics")
             
             col1, col2, col3, col4 = st.columns(4)
             with col1:
@@ -397,7 +397,7 @@ def main():
                 st.metric("Regions", unique_regions)
             
             st.markdown("---")
-            st.subheader("🔍 Column Information")
+            st.subheader("Column Information")
             
             # Create column info table
             col_info = []
@@ -415,7 +415,7 @@ def main():
             st.dataframe(col_info_df, use_container_width=True, height=300)
             
             st.markdown("---")
-            st.subheader("📄 Data Preview (First 50 Rows)")
+            st.subheader("Data Preview (First 50 Rows)")
             st.dataframe(df_clean.head(50), use_container_width=True, height=400)
         else:
             st.info("👆 Please select a country and click 'Load & Clean Data' to begin analysis.")
@@ -430,7 +430,7 @@ def main():
             df_clean = st.session_state['cleaned_df']
             country = st.session_state['selected_country']
         
-            st.header(f"🌡️ Climate Trends - {country}")
+            st.header(f"Climate Trends - {country}")
             st.markdown("Explore how climate variables have changed over time.")
         
             # Use all data without filtering
@@ -461,8 +461,8 @@ def main():
             
                 # Interpretation
                 temp_change = df_yearly['Average_Temperature_C'].iloc[-1] - df_yearly['Average_Temperature_C'].iloc[0]
-                st.caption(f"📊 Temperature changed by {temp_change:.2f}°C over the selected period.")
-                st.markdown("### 🔍 Insight")
+                st.caption(f"Temperature changed by {temp_change:.2f}°C over the selected period.")
+                st.markdown("### Insight")
                 st.markdown(f"""
                 - **What changed?** Temperature {"increased" if temp_change > 0 else "decreased"} by {abs(temp_change):.2f}°C over the entire period
                 - **Why it matters?** {'Rising temperatures can reduce crop yields through heat stress, faster evapotranspiration, and shortened growing seasons' if temp_change > 0 else 'Cooling trends may affect crop phenology and frost risk'}
@@ -488,8 +488,8 @@ def main():
                 # Interpretation
                 precip_change_pct = ((df_yearly['Total_Precipitation_mm'].iloc[-1] - df_yearly['Total_Precipitation_mm'].iloc[0]) / 
                                 df_yearly['Total_Precipitation_mm'].iloc[0]) * 100
-                st.caption(f"📊 Precipitation changed by {precip_change_pct:.1f}% over the selected period.")
-                st.markdown("### 🔍 Insight")
+                st.caption(f"Precipitation changed by {precip_change_pct:.1f}% over the selected period.")
+                st.markdown("### Insight")
                 st.markdown(f"""
                 - **What changed?** Rainfall {"increased" if precip_change_pct > 0 else "decreased"} by {abs(precip_change_pct):.1f}% 
                 - **Why it matters?** {'Increased precipitation can benefit rainfed crops but may cause waterlogging and disease' if precip_change_pct > 0 else 'Declining rainfall threatens rainfed agriculture and increases drought risk'}
@@ -510,7 +510,7 @@ def main():
                 )
                 fig_co2.update_layout(hovermode='x unified', height=400)
                 st.plotly_chart(fig_co2, use_container_width=True)
-                st.markdown("### 🔍 Insight")
+                st.markdown("### Insight")
                 st.markdown("""
                 - **Climate connection:** CO₂ emissions drive long-term warming and weather pattern disruption
                 - **Agricultural relevance:** While CO₂ can enhance photosynthesis (CO₂ fertilization effect), associated warming negates benefits
@@ -536,8 +536,8 @@ def main():
             
                 # Interpretation
                 avg_events = df_yearly['Extreme_Weather_Events'].mean()
-                st.caption(f"📊 Average of {avg_events:.1f} extreme weather events per year.")
-                st.markdown("### 🔍 Insight")
+                st.caption(f"Average of {avg_events:.1f} extreme weather events per year.")
+                st.markdown("### Insight")
                 st.markdown(f"""
                 - **Shock frequency:** Average {avg_events:.1f} extreme events/year indicates {"high climate vulnerability" if avg_events > 2 else "moderate climate stress"}
                 - **Yield impact:** Extreme events (floods, droughts, storms) cause sudden yield drops and crop damage
@@ -554,7 +554,7 @@ def main():
             df_clean = st.session_state['cleaned_df']
             country = st.session_state['selected_country']
             
-            st.header(f"🌾 Agriculture Trends - {country}")
+            st.header(f"Agriculture Trends - {country}")
             st.markdown("Analyze agricultural productivity and input usage patterns.")
             
             # Controls
@@ -602,7 +602,7 @@ def main():
                     for crop, change in yield_change.items():
                         st.write(f"- **{crop}**: {change:+.1f}% change")
 
-                    st.markdown("### 🔍 Crop Performance Insight")
+                    st.markdown("### Crop Performance Insight")
                     st.markdown("""
                     - **Yield trends reveal:** Crop-specific climate responses and adaptation success
                     - **Declining crops:** Likely facing climate stress (heat/water) or pest pressure
@@ -624,7 +624,7 @@ def main():
                 )
                 fig_box.update_layout(showlegend=False, height=400)
                 st.plotly_chart(fig_box, use_container_width=True)
-                st.markdown("### 🔍 Distribution Insight")
+                st.markdown("### Distribution Insight")
                 st.markdown("""
                 - **Wide distributions:** Indicate high yield variability - climate or management inconsistency
                 - **Narrow distributions:** Suggest stable production - better adapted or controlled conditions
@@ -648,8 +648,8 @@ def main():
                 st.plotly_chart(fig_fert, use_container_width=True)
                 
                 fert_change = df_fert['Fertilizer_Use_KG_per_HA'].iloc[-1] - df_fert['Fertilizer_Use_KG_per_HA'].iloc[0]
-                st.caption(f"📊 Fertilizer use changed by {fert_change:.1f} KG/HA over the period.")
-                st.markdown("### 🔍 Input Trend Insight")
+                st.caption(f"Fertilizer use changed by {fert_change:.1f} KG/HA over the period.")
+                st.markdown("### Input Trend Insight")
                 st.markdown(f"""
                 - **Fertilizer change:** {'+' if fert_change > 0 else ''}{fert_change:.1f} KG/HA suggests {"intensification strategy" if fert_change > 0 else "declining input use"}
                 - **Yield relationship:** {"Increased fertilizer should boost yields if water available" if fert_change > 0 else "Reduced fertilizer may limit yield potential"}
@@ -673,8 +673,8 @@ def main():
                 st.plotly_chart(fig_irr, use_container_width=True)
                 
                 latest_irr = df_irr['Irrigation_Access_%'].iloc[-1]
-                st.caption(f"📊 Latest irrigation access: {latest_irr:.1f}%")
-                st.markdown("### 🔍 Irrigation Insight")
+                st.caption(f"Latest irrigation access: {latest_irr:.1f}%")
+                st.markdown("### Irrigation Insight")
                 st.markdown(f"""- **Current access:** {latest_irr:.1f}% irrigation coverage - **Climate buffer:** {"High irrigation access reduces rainfall dependency and drought risk" if latest_irr > 60 else "Low irrigation increases vulnerability to rainfall variability"}
                 - **Adaptation potential:** {"Maintain infrastructure for climate resilience" if latest_irr > 60 else "Expanding irrigation critical for climate adaptation"}""")
     
@@ -688,7 +688,7 @@ def main():
             df_clean = st.session_state['cleaned_df']
             country = st.session_state['selected_country']
             
-            st.header(f"🔗 Climate vs Agriculture Relationship - {country}")
+            st.header(f"Climate vs Agriculture Relationship - {country}")
             st.markdown("Analyze correlations between climate factors and agricultural productivity.")
             
             # Plot 1: Temperature vs Yield
@@ -726,7 +726,7 @@ def main():
                     with col4:
                         st.metric("P-value", f"{p_value:.4f}")
                     
-                    st.markdown("### 🔍 Temperature-Yield Relationship")
+                    st.markdown("### Temperature-Yield Relationship")
                     direction = "negative" if slope < 0 else "positive"
                     strength = "strong" if abs(r_squared) > 0.5 else "moderate" if abs(r_squared) > 0.3 else "weak"
                     st.markdown(f"""
@@ -763,7 +763,7 @@ def main():
                 )
                 
                 if slope is not None:
-                    st.markdown("### 🔍 Rainfall-Yield Relationship")
+                    st.markdown("### Rainfall-Yield Relationship")
                     st.markdown(f"""
                     - **Correlation:** r = {r_value:.3f} indicates {"strong water dependency" if abs(r_value) > 0.5 else "moderate rainfall influence" if abs(r_value) > 0.3 else "weak direct relationship"}
                     - **Non-linear pattern:** LOWESS curve shows {"optimal rainfall range exists" if True else "linear relationship"}
@@ -825,7 +825,7 @@ def main():
                 )
                 fig_corr.update_layout(height=500)
                 st.plotly_chart(fig_corr, use_container_width=True)
-                st.markdown("### 🔍 Correlation Insights")
+                st.markdown("### Correlation Insights")
                 st.markdown("""
                 **Key patterns to observe:**
                 - **Strong positive (red):** Variables move together - potential synergy or common cause
@@ -841,7 +841,7 @@ def main():
                 st.dataframe(corr_table, use_container_width=True)
                 
                 st.caption("""
-                📊 **Interpretation Guide:**
+                **Interpretation Guide:**
                 - Pearson r: Linear correlation (-1 to +1)
                 - Spearman r: Monotonic correlation (robust to outliers)
                 - P-value < 0.05: Statistically significant
@@ -860,7 +860,7 @@ def main():
             df_clean = st.session_state['cleaned_df']
             country = st.session_state['selected_country']
             
-            st.header(f"💡 Key Insights & Future Scope - {country}")
+            st.header(f"Key Insights - {country}")
             
             # Generate insights
             insights = generate_insights(df_clean)
@@ -871,7 +871,7 @@ def main():
             st.markdown("---")
 
             # NEW SECTION: Crop Vulnerability Analysis
-            st.subheader("🌾 Crop Vulnerability Assessment")
+            st.subheader("Crop Vulnerability Assessment")
 
             if 'Crop_Type' in df_clean.columns and 'Average_Temperature_C' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
                 crop_climate_analysis = []
@@ -898,18 +898,18 @@ def main():
                     col1, col2 = st.columns(2)
         
                     with col1:
-                        st.markdown("**🌡️ Most Heat-Sensitive Crops**")
+                        st.markdown("**Most Heat-Sensitive Crops**")
                         heat_sensitive = df_vulnerability.nsmallest(3, 'Heat Sensitivity')[['Crop', 'Heat Sensitivity']]
                         for _, row in heat_sensitive.iterrows():
                             st.markdown(f"- **{row['Crop']}**: r = {row['Heat Sensitivity']:.3f} (Yield ↓ as temperature ↑)")
         
                     with col2:
-                        st.markdown("**🌧️ Most Rainfall-Dependent Crops**")
+                        st.markdown("**Most Rainfall-Dependent Crops**")
                         rain_dependent = df_vulnerability.nlargest(3, 'Rainfall Sensitivity')[['Crop', 'Rainfall Sensitivity']]
                         for _, row in rain_dependent.iterrows():
                             st.markdown(f"- **{row['Crop']}**: r = {row['Rainfall Sensitivity']:.3f} (Needs adequate rainfall)")
         
-                    st.markdown("**⚠️ Most Volatile/Vulnerable Crops**")
+                    st.markdown("**Most Volatile/Vulnerable Crops**")
                     volatile = df_vulnerability.nlargest(3, 'Yield Volatility (CV)')[['Crop', 'Yield Volatility (CV)']]
                     for _, row in volatile.iterrows():
                         st.markdown(f"- **{row['Crop']}**: CV = {row['Yield Volatility (CV)']:.2f} (High year-to-year variation)")
@@ -917,7 +917,7 @@ def main():
             st.markdown("---")
 
         # NEW SECTION: Extreme Year Analysis
-        st.subheader("⚠️ Extreme Climate Years Analysis")
+        st.subheader("Extreme Climate Years Analysis")
 
         if 'Year' in df_clean.columns and 'Crop_Yield_MT_per_HA' in df_clean.columns:
             # Identify extreme years
@@ -971,13 +971,13 @@ def main():
         st.markdown("---")
 
         # NEW SECTION: Thematic Insights
-        st.subheader("📊 Thematic Climate-Agriculture Insights")
+        st.subheader("Thematic Climate-Agriculture Insights")
 
         tab_a, tab_b, tab_c, tab_d = st.tabs([
-            "🌡️ Heat Exposure",
-            "🌧️ Rainfall Dependency",
-            "⚠️ Extreme Shocks",
-            "🚜 Farmer Adaptation"
+            "Heat Exposure",
+            "Rainfall Dependency",
+            "Extreme Shocks",
+            "Farmer Adaptation"
         ])
 
         with tab_a:
