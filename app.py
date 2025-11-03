@@ -1,4 +1,4 @@
-"""
+    """
 ================================================================================
 PROJECT: Climate Change Impact on Agriculture — Country-Focused EDA
 COURSE: 2nd-Year Engineering Mini-Project
@@ -1077,120 +1077,96 @@ def main():
 
         st.markdown("---")
 
-# NEW SECTION: Recommendations
-st.subheader("💡 Climate Adaptation Recommendations")
+        # NEW SECTION: Recommendations
+        st.subheader("💡 Climate Adaptation Recommendations")
 
-st.markdown(f"""
-Based on the analysis of **{country}**'s climate-agriculture system, evidence-based recommendations:
-""")
+        st.markdown(f"""
+        Based on the analysis of **{country}**'s climate-agriculture system, evidence-based recommendations:
+        """)
 
-recommendations_data = []
+        recommendations_data = []
 
-# Temperature-based recommendations
-if 'Average_Temperature_C' in df_clean.columns:
-    temp_trend = df_clean.groupby('Year')['Average_Temperature_C'].mean()
-    if len(temp_trend) > 1:
-        temp_change = temp_trend.iloc[-1] - temp_trend.iloc[0]
-        if temp_change > 0.3:
-            recommendations_data.append({
-                'Issue': '🌡️ Rising Temperature',
-                'Evidence': f'+{temp_change:.2f}°C warming trend',
-                'Impact': 'Heat stress reducing yields of sensitive crops',
-                'Recommendation': 'Introduce heat-tolerant crop varieties; shift planting dates to avoid peak heat during flowering'
-            })
+        # Temperature-based recommendations
+        if 'Average_Temperature_C' in df_clean.columns:
+            temp_trend = df_clean.groupby('Year')['Average_Temperature_C'].mean()
+            if len(temp_trend) > 1:
+                temp_change = temp_trend.iloc[-1] - temp_trend.iloc[0]
+                if temp_change > 0.3:
+                    recommendations_data.append({
+                        'Issue': '🌡️ Rising Temperature',
+                        'Evidence': f'+{temp_change:.2f}°C warming trend',
+                        'Impact': 'Heat stress reducing yields of sensitive crops',
+                        'Recommendation': 'Introduce heat-tolerant crop varieties; shift planting dates to avoid peak heat during flowering'
+                    })
 
-# Rainfall-based recommendations
-if 'Total_Precipitation_mm' in df_clean.columns:
-    precip_trend = df_clean.groupby('Year')['Total_Precipitation_mm'].mean()
-    if len(precip_trend) > 1:
-        precip_cv = precip_trend.std() / precip_trend.mean()
-        if precip_cv > 0.15:
-            recommendations_data.append({
-                'Issue': '🌧️ Rainfall Variability',
-                'Evidence': f'High variability (CV = {precip_cv:.2f})',
-                'Impact': 'Unpredictable water availability threatens rainfed crops',
-                'Recommendation': 'Expand micro-irrigation; promote rainwater harvesting; develop drought contingency plans'
-            })
+        # Rainfall-based recommendations
+        if 'Total_Precipitation_mm' in df_clean.columns:
+            precip_trend = df_clean.groupby('Year')['Total_Precipitation_mm'].mean()
+            if len(precip_trend) > 1:
+                precip_cv = precip_trend.std() / precip_trend.mean()
+                if precip_cv > 0.15:
+                    recommendations_data.append({
+                        'Issue': '🌧️ Rainfall Variability',
+                        'Evidence': f'High variability (CV = {precip_cv:.2f})',
+                        'Impact': 'Unpredictable water availability threatens rainfed crops',
+                        'Recommendation': 'Expand micro-irrigation; promote rainwater harvesting; develop drought contingency plans'
+                    })
 
-# Extreme weather recommendations
-if 'Extreme_Weather_Events' in df_clean.columns:
-    avg_events = df_clean.groupby('Year')['Extreme_Weather_Events'].sum().mean()
-    if avg_events > 1.5:
-        recommendations_data.append({
-            'Issue': '⚠️ Extreme Weather Frequency',
-            'Evidence': f'Average {avg_events:.1f} events/year',
-            'Impact': 'Sudden yield shocks and production instability',
-            'Recommendation': 'Implement weather-based crop insurance; establish early warning systems; promote climate-resilient varieties'
-        })
+        # Extreme weather recommendations
+        if 'Extreme_Weather_Events' in df_clean.columns:
+            avg_events = df_clean.groupby('Year')['Extreme_Weather_Events'].sum().mean()
+            if avg_events > 1.5:
+                recommendations_data.append({
+                    'Issue': '⚠️ Extreme Weather Frequency',
+                    'Evidence': f'Average {avg_events:.1f} events/year',
+                    'Impact': 'Sudden yield shocks and production instability',
+                    'Recommendation': 'Implement weather-based crop insurance; establish early warning systems; promote climate-resilient varieties'
+                })
 
-# Irrigation recommendations
-if 'Irrigation_Access_%' in df_clean.columns:
-    latest_irrigation = df_clean.groupby('Year')['Irrigation_Access_%'].mean().iloc[-1]
-    if latest_irrigation < 50:
-        recommendations_data.append({
-            'Issue': '💧 Low Irrigation Coverage',
-            'Evidence': f'Only {latest_irrigation:.1f}% irrigation access',
-            'Impact': 'High vulnerability to rainfall failures',
-            'Recommendation': 'Prioritize irrigation infrastructure investment; promote drip/sprinkler systems for water efficiency'
-        })
+        # Irrigation recommendations
+        if 'Irrigation_Access_%' in df_clean.columns:
+            latest_irrigation = df_clean.groupby('Year')['Irrigation_Access_%'].mean().iloc[-1]
+            if latest_irrigation < 50:
+                recommendations_data.append({
+                    'Issue': '💧 Low Irrigation Coverage',
+                    'Evidence': f'Only {latest_irrigation:.1f}% irrigation access',
+                    'Impact': 'High vulnerability to rainfall failures',
+                    'Recommendation': 'Prioritize irrigation infrastructure investment; promote drip/sprinkler systems for water efficiency'
+                })
 
-# General recommendations
-recommendations_data.extend([
-    {
-        'Issue': '📊 Data-Driven Management',
-        'Evidence': 'Analysis reveals clear climate-yield patterns',
-        'Impact': 'Predictable climate impacts on specific crops',
-        'Recommendation': 'Establish agro-meteorological advisory services; provide farmers with seasonal forecasts and crop advisories'
-    },
-    {
-        'Issue': '🌱 Crop Diversification',
-        'Evidence': 'Different crops show varying climate sensitivity',
-        'Impact': 'Single-crop focus increases risk',
-        'Recommendation': 'Promote crop diversification; encourage climate-resilient crop mixes; support indigenous/traditional varieties'
-    },
-    {
-        'Issue': '🔬 Research & Development',
-        'Evidence': 'Climate trends continuing/accelerating',
-        'Impact': 'Need for continuous adaptation',
-        'Recommendation': 'Invest in climate-smart agriculture research; develop location-specific adaptation strategies; monitor long-term trends'
-    }
-])
+        # General recommendations
+        recommendations_data.extend([
+            {
+                'Issue': '📊 Data-Driven Management',
+                'Evidence': 'Analysis reveals clear climate-yield patterns',
+                'Impact': 'Predictable climate impacts on specific crops',
+                'Recommendation': 'Establish agro-meteorological advisory services; provide farmers with seasonal forecasts and crop advisories'
+            },
+            {
+                'Issue': '🌱 Crop Diversification',
+                'Evidence': 'Different crops show varying climate sensitivity',
+                'Impact': 'Single-crop focus increases risk',
+                'Recommendation': 'Promote crop diversification; encourage climate-resilient crop mixes; support indigenous/traditional varieties'
+            },
+            {
+                'Issue': '🔬 Research & Development',
+                'Evidence': 'Climate trends continuing/accelerating',
+                'Impact': 'Need for continuous adaptation',
+                'Recommendation': 'Invest in climate-smart agriculture research; develop location-specific adaptation strategies; monitor long-term trends'
+            }
+        ])
 
-df_recommendations = pd.DataFrame(recommendations_data)
-st.table(df_recommendations)
+        df_recommendations = pd.DataFrame(recommendations_data)
+        st.table(df_recommendations)
 
-st.markdown("---")
-st.markdown("""
-### 📌 Implementation Priority Framework
-
-**Immediate Actions (0-1 year):**
-- Deploy weather-based advisories
-- Initiate farmer training on climate adaptation
-- Establish crop insurance schemes
-
-**Medium-term (1-3 years):**
-- Expand irrigation infrastructure
-- Distribute climate-resilient seed varieties
-- Develop climate-smart agriculture extension programs
-
-**Long-term (3-5+ years):**
-- Comprehensive water resource management
-- Research & breeding programs for future climate conditions
-- Policy integration of climate adaptation in agriculture sector
-""")
-
-st.markdown("---")
-st.info("""
-**💡 Note for Students:** This analysis demonstrates the application of data science to real-world agricultural challenges. 
-The insights generated here can inform evidence-based policy decisions and farmer-level adaptation strategies. 
-Consider this a framework for similar analyses in other contexts or with additional data sources.
-""")
+        st.markdown("---")
+       
             
-st.subheader("🔍 Key Findings")
-st.markdown("Evidence-based insights from the analysis:")
+        st.subheader("🔍 Key Findings")
+        st.markdown("Evidence-based insights from the analysis:")
             
-for i, insight in enumerate(insights, 1):
-    st.markdown(f"**{i}.** {insight}")
+        for i, insight in enumerate(insights, 1):
+            st.markdown(f"**{i}.** {insight}")
 # ============================================================================
 # RUN THE APP
 # ============================================================================
