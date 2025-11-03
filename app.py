@@ -1074,10 +1074,6 @@ def main():
             - Adaptation may lag behind climate change pace
             - Need for systematic climate-smart agriculture adoption
             """)
-
-        st.markdown("---")
-
-
 # ============================================================================
 # RUN THE APP
 # ============================================================================
