@@ -314,7 +314,7 @@ def main():
         "Climate Trends",
         "Agriculture Trends",
         "Climate vs Agriculture",
-        "Key Insights & Future Scope"
+        "Key Insights"
     ])
     
     # ========================================================================
