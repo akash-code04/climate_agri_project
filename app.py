@@ -908,12 +908,6 @@ def main():
                         rain_dependent = df_vulnerability.nlargest(3, 'Rainfall Sensitivity')[['Crop', 'Rainfall Sensitivity']]
                         for _, row in rain_dependent.iterrows():
                             st.markdown(f"- **{row['Crop']}**: r = {row['Rainfall Sensitivity']:.3f} (Needs adequate rainfall)")
-        
-                    st.markdown("**Most Volatile/Vulnerable Crops**")
-                    volatile = df_vulnerability.nlargest(3, 'Yield Volatility (CV)')[['Crop', 'Yield Volatility (CV)']]
-                    for _, row in volatile.iterrows():
-                        st.markdown(f"- **{row['Crop']}**: CV = {row['Yield Volatility (CV)']:.2f} (High year-to-year variation)")
-
             st.markdown("---")
 
         # NEW SECTION: Extreme Year Analysis
