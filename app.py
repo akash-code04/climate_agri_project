@@ -1,7 +1,6 @@
 """
 ================================================================================
-PROJECT: Climate Change Impact on Agriculture — Country-Focused EDA
-COURSE: 2nd-Year Engineering Mini-Project
+PROJECT: Climate Change Impact on Agriculture
 ================================================================================
 """
 import streamlit as st
